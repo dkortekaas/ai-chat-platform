@@ -11,7 +11,7 @@ export async function middleware(request: NextRequest) {
   })
   
   // Protected routes - also include root path to redirect to dashboard
-  const protectedPaths = ['/', '/documents', '/conversations', '/settings', '/analytics']
+  const protectedPaths = ['/', '/kennisbank', '/conversations', '/settings', '/analytics', '/assistants']
   const isProtectedPath = protectedPaths.some(path => 
     request.nextUrl.pathname === path || request.nextUrl.pathname.startsWith(path + '/')
   )

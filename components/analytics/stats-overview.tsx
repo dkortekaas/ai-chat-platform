@@ -16,7 +16,7 @@ export function StatsOverview({ stats }: StatsOverviewProps) {
       title: 'Total Conversaties',
       value: stats.totalConversations.toLocaleString(),
       icon: MessageSquare,
-      color: 'text-blue-600',
+      color: 'text-indigo-500',
       bgColor: 'bg-blue-50',
     },
     {
@@ -39,7 +39,7 @@ export function StatsOverview({ stats }: StatsOverviewProps) {
       title: 'Groei',
       value: `${stats.conversationGrowth > 0 ? '+' : ''}${stats.conversationGrowth}%`,
       icon: TrendingUp,
-      color: 'text-purple-600',
+      color: 'text-indigo-500',
       bgColor: 'bg-purple-50',
     },
   ]

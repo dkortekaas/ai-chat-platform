@@ -103,7 +103,7 @@ export function ConversationDetail({ conversationId }: ConversationDetailProps) 
                 <div
                   className={`rounded-lg px-3 py-2 text-sm ${
                     message.sender === 'user'
-                      ? 'bg-blue-600 text-white'
+                      ? 'bg-indigo-500 text-white'
                       : 'bg-gray-100 text-gray-900'
                   }`}
                 >

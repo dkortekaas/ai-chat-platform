@@ -8,7 +8,8 @@ import {
   Settings, 
   Key, 
   LogOut, 
-  ChevronDown 
+  ChevronDown,
+  Users
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import {
@@ -32,14 +33,18 @@ export function UserMenu() {
     })
   }
 
-  const handleSettings = () => {
-    router.push('/settings')
+  const handleAccount = () => {
+    router.push('/account')
+    setIsOpen(false)
+  }
+
+  const handleTeam = () => {
+    router.push('/account?tab=team')
     setIsOpen(false)
   }
 
   const handlePasswordChange = () => {
-    // Voor nu navigeren naar settings, later kan dit een aparte pagina worden
-    router.push('/settings')
+    router.push('/account?tab=change-password')
     setIsOpen(false)
   }
 
@@ -63,7 +68,7 @@ export function UserMenu() {
           variant="ghost" 
           className="flex items-center gap-2 px-3 py-2 h-auto"
         >
-          <Avatar className="w-8 h-8 bg-blue-600 text-white flex items-center justify-center text-sm font-medium">
+          <Avatar className="w-8 h-8 bg-indigo-500 text-white flex items-center justify-center text-sm font-medium">
             {session.user.image ? (
               <img 
                 src={session.user.image} 
@@ -103,11 +108,19 @@ export function UserMenu() {
         <DropdownMenuSeparator />
         
         <DropdownMenuItem 
-          onClick={handleSettings}
+          onClick={handleAccount}
           className="cursor-pointer"
         >
-          <Settings className="w-4 h-4 mr-2" />
-          Instellingen
+          <User className="w-4 h-4 mr-2" />
+          Mijn Account
+        </DropdownMenuItem>
+        
+        <DropdownMenuItem 
+          onClick={handleTeam}
+          className="cursor-pointer"
+        >
+          <Users className="w-4 h-4 mr-2" />
+          Team
         </DropdownMenuItem>
         
         <DropdownMenuItem 

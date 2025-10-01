@@ -39,7 +39,7 @@ export function ConversationsChart() {
             {conversationData.map((item, index) => (
               <div key={index} className="flex-1 flex flex-col items-center">
                 <div 
-                  className="bg-blue-600 rounded-t w-full transition-all duration-300 hover:bg-blue-700"
+                  className="bg-indigo-500 rounded-t w-full transition-all duration-300 hover:bg-blue-700"
                   style={{ 
                     height: `${(item.conversations / maxConversations) * 100}%`,
                     minHeight: '4px'
@@ -55,7 +55,7 @@ export function ConversationsChart() {
           {/* Legend */}
           <div className="flex items-center justify-between text-sm">
             <div className="flex items-center space-x-2">
-              <div className="w-3 h-3 bg-blue-600 rounded"></div>
+              <div className="w-3 h-3 bg-indigo-500 rounded"></div>
               <span className="text-gray-600">Gesprekken</span>
             </div>
             <div className="text-gray-500">

@@ -1,9 +1,7 @@
 import { AuthOptions } from 'next-auth'
 import CredentialsProvider from 'next-auth/providers/credentials'
 import { compare } from 'bcryptjs'
-import { PrismaClient } from '@prisma/client'
-
-const prisma = new PrismaClient()
+import { prisma } from './prisma'
 
 declare module 'next-auth' {
   interface Session {
@@ -12,6 +10,7 @@ declare module 'next-auth' {
       name?: string | null
       email?: string | null
       image?: string | null
+      role?: string
     }
   }
 }
@@ -53,6 +52,7 @@ export const authOptions: AuthOptions = {
             id: user.id,
             email: user.email,
             name: user.name,
+            role: user.role,
           }
         } catch (error) {
           console.error('Auth error:', error)
@@ -71,12 +71,14 @@ export const authOptions: AuthOptions = {
     async jwt({ token, user }: any) {
       if (user) {
         token.id = user.id
+        token.role = user.role
       }
       return token
     },
     async session({ session, token }: any) {
       if (token && session.user) {
         session.user.id = token.id as string
+        session.user.role = token.role as string
       }
       return session
     },

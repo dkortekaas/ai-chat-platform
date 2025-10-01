@@ -5,9 +5,9 @@ import { Plus, Upload, Settings, BarChart3 } from 'lucide-react'
 
 const actions = [
   {
-    title: 'Document toevoegen',
-    description: 'Upload een nieuw document voor je kennisbank',
-    href: '/dashboard/documents',
+    title: 'Kennisbank beheren',
+    description: 'Beheer je kennisbronnen (websites, FAQs, bestanden)',
+    href: '/kennisbank',
     icon: Upload,
     color: 'bg-blue-500'
   },
@@ -43,7 +43,7 @@ export function QuickActions() {
                     <action.icon className="h-6 w-6 text-white" />
                   </div>
                   <div className="flex-1">
-                    <h3 className="text-sm font-medium text-gray-900 group-hover:text-blue-600">
+                    <h3 className="text-sm font-medium text-gray-900 group-hover:text-indigo-500">
                       {action.title}
                     </h3>
                     <p className="text-sm text-gray-500">

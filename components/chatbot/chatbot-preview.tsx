@@ -21,7 +21,7 @@ export function ChatbotPreview() {
           {/* Chatbot Widget Preview */}
           <div className="relative bg-white rounded-lg shadow-lg max-w-sm ml-auto">
             {/* Header */}
-            <div className="bg-blue-600 text-white p-3 rounded-t-lg flex items-center justify-between">
+            <div className="bg-indigo-500 text-white p-3 rounded-t-lg flex items-center justify-between">
               <div className="flex items-center space-x-2">
                 <Avatar className="h-6 w-6">
                   <AvatarFallback className="bg-blue-500 text-white text-xs">
@@ -54,7 +54,7 @@ export function ChatbotPreview() {
               </div>
               
               <div className="flex items-start space-x-2 justify-end">
-                <div className="bg-blue-600 text-white rounded-lg px-3 py-2 max-w-xs">
+                <div className="bg-indigo-500 text-white rounded-lg px-3 py-2 max-w-xs">
                   <p className="text-xs">Ik heb een vraag over jullie product</p>
                 </div>
               </div>
@@ -79,7 +79,7 @@ export function ChatbotPreview() {
                   className="text-xs h-8"
                   disabled
                 />
-                <Button size="icon" className="h-8 w-8 bg-blue-600 hover:bg-blue-700">
+                <Button size="icon" className="h-8 w-8 bg-indigo-500 hover:bg-blue-700">
                   <Send className="h-3 w-3" />
                 </Button>
               </div>
@@ -90,7 +90,7 @@ export function ChatbotPreview() {
           <div className="mt-4 flex justify-end">
             <Button 
               size="icon" 
-              className="h-12 w-12 rounded-full bg-blue-600 hover:bg-blue-700 shadow-lg"
+              className="h-12 w-12 rounded-full bg-indigo-500 hover:bg-blue-700 shadow-lg"
             >
               <Bot className="h-6 w-6" />
             </Button>

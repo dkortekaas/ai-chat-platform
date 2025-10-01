@@ -1,21 +1,22 @@
 import { ConversationList } from '@/components/conversations/conversation-list'
-import { ConversationFilters } from '@/components/conversations/conversation-filters'
-import { ConversationExportButton } from '@/components/conversations/conversation-export-button'
+import { ConversationStats } from '@/components/conversations/conversation-stats'
 
 export default function ConversationsPage() {
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <div>
-          <h1 className="text-2xl font-semibold text-gray-900">Gesprekken</h1>
-          <p className="mt-1 text-sm text-gray-500">
-            Overzicht van alle chatbot gesprekken
-          </p>
-        </div>
-        <ConversationExportButton />
+      <div>
+        <h1 className="text-2xl font-bold text-gray-900">Conversations</h1>
+        <p className="mt-1 text-sm text-gray-500">
+          Access and review the interactions between your website visitors and the assistant
+        </p>
       </div>
 
-      <ConversationFilters />
+      <ConversationStats 
+        all={26271}
+        conversations={124}
+        empty={26147}
+      />
+
       <ConversationList />
     </div>
   )

@@ -1,82 +1,115 @@
-import { SettingsForm } from '@/components/chatbot/settings-form'
-import { ChatbotPreview } from '@/components/chatbot/chatbot-preview'
-import { getServerSession } from 'next-auth'
-import { PrismaClient } from '@prisma/client'
-import { redirect } from 'next/navigation'
-import { authOptions } from '@/lib/auth'
+'use client'
 
-const prisma = new PrismaClient()
+import { useState } from 'react'
+import { Button } from '@/components/ui/button'
+import { 
+  TestTube,
+  ArrowUp
+} from 'lucide-react'
+import { cn } from '@/lib/utils'
+import { useAssistant } from '@/contexts/assistant-context'
+import { useToast } from '@/hooks/use-toast'
 
-async function getSettings(userId: string) {
-  try {
-    let settings = await prisma.chatbotSettings.findFirst({
-      where: {
-        userId: userId
-      }
-    })
+// Import tab components
+import { LookAndFeelTab } from '@/components/settings/look-and-feel-tab'
+import { ActionButtonsTab } from '@/components/settings/action-buttons-tab'
+import { FormsTab } from '@/components/settings/forms-tab'
+import { IntegrationsTab } from '@/components/settings/integrations-tab'
+import { WidgetTab } from '@/components/settings/widget-tab'
 
-    // Als er geen instellingen zijn, maak dan standaard instellingen aan
-    if (!settings) {
-      settings = await prisma.chatbotSettings.create({
-        data: {
-          userId: userId,
-          name: 'AI Assistant',
-          welcomeMessage: 'Hallo! Hoe kan ik je helpen?',
-          placeholderText: 'Typ je vraag hier...',
-          primaryColor: '#3B82F6',
-          secondaryColor: '#10B981',
-          tone: 'friendly',
-          temperature: 0.7,
-          maxResponseLength: 500,
-          fallbackMessage: 'Sorry, ik begrijp je vraag niet. Kun je het anders formuleren?'
-        }
+const tabs = [
+  { id: 'look-and-feel', name: 'Look & Feel', component: LookAndFeelTab },
+  { id: 'action-buttons', name: 'Action Buttons', component: ActionButtonsTab },
+  { id: 'forms', name: 'Forms', component: FormsTab },
+  { id: 'integrations', name: 'Integrations', component: IntegrationsTab },
+  { id: 'widget', name: 'Widget', component: WidgetTab },
+]
+
+export default function SettingsPage() {
+  const [activeTab, setActiveTab] = useState('look-and-feel')
+  const [hasChanges, setHasChanges] = useState(false)
+  const [isSaving, setIsSaving] = useState(false)
+  const { currentAssistant, refreshAssistants } = useAssistant()
+  const { toast } = useToast()
+
+  const ActiveComponent = tabs.find(tab => tab.id === activeTab)?.component
+
+  const handleSaveAll = async () => {
+    if (!currentAssistant || !hasChanges) return
+
+    setIsSaving(true)
+    try {
+      // The individual tabs handle their own saving
+      // This is just a placeholder for future global save functionality
+      toast({
+        title: "Success",
+        description: "All changes saved successfully",
       })
+      setHasChanges(false)
+    } catch (error) {
+      console.error('Error saving changes:', error)
+      toast({
+        title: "Error",
+        description: "Failed to save changes",
+        variant: "destructive"
+      })
+    } finally {
+      setIsSaving(false)
     }
-
-    return settings
-  } finally {
-    await prisma.$disconnect()
-  }
-}
-
-export default async function SettingsPage() {
-  const session = await getServerSession(authOptions)
-  
-  if (!session?.user?.id) {
-    redirect('/login')
-  }
-
-  const settings = await getSettings(session.user.id)
-
-  // Transform settings to match form schema
-  const formData = {
-    name: settings.name,
-    welcomeMessage: settings.welcomeMessage,
-    placeholderText: settings.placeholderText,
-    primaryColor: settings.primaryColor,
-    secondaryColor: settings.secondaryColor,
-    tone: settings.tone as 'professional' | 'friendly' | 'casual',
-    temperature: settings.temperature,
-    maxResponseLength: settings.maxResponseLength,
-    fallbackMessage: settings.fallbackMessage
   }
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-semibold text-gray-900">Chatbot Instellingen</h1>
-        <p className="mt-1 text-sm text-gray-500">
-          Pas je chatbot aan naar jouw wensen
-        </p>
+      <div className="flex justify-between items-center">
+        <div>
+          <h1 className="text-2xl font-semibold text-gray-900">Chatbot Instellingen</h1>
+          <p className="mt-1 text-sm text-gray-500">
+            Pas je chatbot aan naar jouw wensen
+          </p>
+        </div>
+        <div className="flex items-center space-x-3">
+          <Button
+            variant="outline"
+            size="sm"
+            disabled={!hasChanges || isSaving}
+            onClick={handleSaveAll}
+            className="flex items-center space-x-2"
+          >
+            <ArrowUp className="w-4 h-4" />
+            <span>
+              {isSaving ? 'Saving...' : hasChanges ? 'Save changes' : 'No changes'}
+            </span>
+          </Button>
+          <Button size="sm" className="bg-indigo-500 hover:bg-indigo-600">
+            <TestTube className="w-4 h-4 mr-2" />
+            Test
+          </Button>
+        </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div>
-          <SettingsForm initialData={formData} />
-        </div>
-        <div>
-          <ChatbotPreview />
-        </div>
+      {/* Tabs */}
+      <div className="border-b border-gray-200">
+        <nav className="-mb-px flex space-x-8">
+          {tabs.map((tab) => (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id)}
+              className={cn(
+                'whitespace-nowrap py-2 px-1 border-b-2 font-medium text-sm',
+                activeTab === tab.id
+                  ? 'border-indigo-400 text-indigo-500'
+                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+              )}
+            >
+              {tab.name}
+            </button>
+          ))}
+        </nav>
+      </div>
+
+      {/* Tab Content */}
+      <div className="mt-6">
+        {ActiveComponent && <ActiveComponent onChanges={setHasChanges} />}
       </div>
     </div>
   )

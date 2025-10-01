@@ -1,8 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { hash } from 'bcryptjs'
-import { PrismaClient } from '@prisma/client'
-
-const prisma = new PrismaClient()
+import { prisma } from '@/lib/prisma'
 
 export async function POST(request: NextRequest) {
   try {
@@ -38,19 +36,29 @@ export async function POST(request: NextRequest) {
     // Hash wachtwoord
     const hashedPassword = await hash(password, 12)
 
-    // Maak nieuwe gebruiker aan
+    // Bereken trial periode (30 dagen vanaf nu)
+    const now = new Date()
+    const trialEndDate = new Date(now.getTime() + (30 * 24 * 60 * 60 * 1000)) // 30 dagen
+
+    // Maak nieuwe gebruiker aan met trial periode
     const user = await prisma.user.create({
       data: {
         name,
         email,
         password: hashedPassword,
-        role: 'USER' // Default role
+        role: 'USER', // Default role
+        subscriptionStatus: 'TRIAL',
+        trialStartDate: now,
+        trialEndDate: trialEndDate
       },
       select: {
         id: true,
         name: true,
         email: true,
-        createdAt: true
+        createdAt: true,
+        subscriptionStatus: true,
+        trialStartDate: true,
+        trialEndDate: true
       }
     })
 
@@ -68,7 +76,5 @@ export async function POST(request: NextRequest) {
       { error: 'Er is een fout opgetreden bij het aanmaken van het account' },
       { status: 500 }
     )
-  } finally {
-    await prisma.$disconnect()
   }
 }

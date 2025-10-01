@@ -31,13 +31,13 @@ export function DocumentCard({ document }: DocumentCardProps) {
       <CardHeader className="flex flex-row items-start justify-between">
         <div className="flex items-start gap-3">
           <div className="p-2 bg-blue-50 rounded-lg">
-            <FileText className="w-5 h-5 text-blue-600" />
+            <FileText className="w-5 h-5 text-indigo-500" />
           </div>
           
           <div className="flex-1 min-w-0">
             <Link 
               href={`/documents/${document.id}`}
-              className="font-medium text-gray-900 hover:text-blue-600 truncate block"
+              className="font-medium text-gray-900 hover:text-indigo-500 truncate block"
             >
               {document.name}
             </Link>
