@@ -23,7 +23,7 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'User not found' }, { status: 404 })
     }
 
-    const assistants = await prisma.assistant.findMany({
+    const assistants = await prisma.chatbot_settings.findMany({
       where: {
         userId: session.user.id
       },
@@ -61,7 +61,7 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json()
-    const { name, description, welcomeMessage, placeholderText, primaryColor, secondaryColor, fontFamily, assistantName, assistantSubtitle, selectedAvatar, tone, language, maxResponseLength, temperature, fallbackMessage, position, showBranding, isActive, allowedDomains, rateLimit } = body
+    const { name, welcomeMessage, placeholderText, primaryColor, secondaryColor, tone, language, maxResponseLength, temperature, fallbackMessage, position, showBranding, isActive, allowedDomains, rateLimit } = body
 
     // Validate required fields
     if (!name) {
@@ -71,19 +71,15 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    const assistant = await prisma.assistant.create({
+    const assistant = await prisma.chatbot_settings.create({
       data: {
+        id: crypto.randomUUID(),
         userId: session.user.id,
-        name,
-        description,
+        name: name || "AI Assistent",
         welcomeMessage: welcomeMessage || "Hallo! Hoe kan ik je helpen?",
         placeholderText: placeholderText || "Stel een vraag...",
         primaryColor: primaryColor || "#3B82F6",
         secondaryColor: secondaryColor || "#1E40AF",
-        fontFamily: fontFamily || "Inter",
-        assistantName: assistantName || "PS in foodservice",
-        assistantSubtitle: assistantSubtitle || "We helpen je graag verder!",
-        selectedAvatar: selectedAvatar || "chat-bubble",
         tone: tone || "professional",
         language: language || "nl",
         maxResponseLength: maxResponseLength || 500,
@@ -93,7 +89,9 @@ export async function POST(request: NextRequest) {
         showBranding: showBranding !== undefined ? showBranding : true,
         isActive: isActive !== undefined ? isActive : true,
         allowedDomains: allowedDomains || [],
-        rateLimit: rateLimit || 10
+        rateLimit: rateLimit || 10,
+        apiKey: crypto.randomUUID(),
+        updatedAt: new Date()
       }
     })
 

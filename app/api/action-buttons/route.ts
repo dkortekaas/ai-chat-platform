@@ -18,7 +18,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Verify the assistant belongs to the user
-    const assistant = await prisma.assistant.findFirst({
+    const assistant = await prisma.chatbot_settings.findFirst({
       where: {
         id: assistantId,
         userId: session.user.id
@@ -63,7 +63,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Verify the assistant belongs to the user
-    const assistant = await prisma.assistant.findFirst({
+    const assistant = await prisma.chatbot_settings.findFirst({
       where: {
         id: assistantId,
         userId: session.user.id

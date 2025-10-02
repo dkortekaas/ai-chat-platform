@@ -8,13 +8,14 @@ import { Textarea } from '@/components/ui/textarea'
 import { Card } from '@/components/ui/card'
 import { Dialog } from '@/components/ui/dialog'
 import { Select } from '@/components/ui/select'
+import { Badge } from '@/components/ui/badge'
 import { ColorPicker } from '@/components/chatbot/color-picker'
 import { useToast } from '@/hooks/use-toast'
 
 interface Assistant {
   id: string
+  userId: string
   name: string
-  description?: string
   welcomeMessage: string
   placeholderText: string
   primaryColor: string
@@ -27,8 +28,11 @@ interface Assistant {
   position: string
   showBranding: boolean
   isActive: boolean
+  apiKey: string
   allowedDomains: string[]
   rateLimit: number
+  createdAt: string
+  updatedAt: string
 }
 
 interface AssistantFormProps {
@@ -41,7 +45,6 @@ interface AssistantFormProps {
 export function AssistantForm({ isOpen, onClose, onSuccess, assistant }: AssistantFormProps) {
   const [formData, setFormData] = useState({
     name: '',
-    description: '',
     welcomeMessage: 'Hallo! Hoe kan ik je helpen?',
     placeholderText: 'Stel een vraag...',
     primaryColor: '#3B82F6',
@@ -65,7 +68,6 @@ export function AssistantForm({ isOpen, onClose, onSuccess, assistant }: Assista
     if (assistant) {
       setFormData({
         name: assistant.name,
-        description: assistant.description || '',
         welcomeMessage: assistant.welcomeMessage,
         placeholderText: assistant.placeholderText,
         primaryColor: assistant.primaryColor,
@@ -85,7 +87,6 @@ export function AssistantForm({ isOpen, onClose, onSuccess, assistant }: Assista
       // Reset form for new assistant
       setFormData({
         name: '',
-        description: '',
         welcomeMessage: 'Hallo! Hoe kan ik je helpen?',
         placeholderText: 'Stel een vraag...',
         primaryColor: '#3B82F6',
@@ -104,7 +105,7 @@ export function AssistantForm({ isOpen, onClose, onSuccess, assistant }: Assista
     }
   }, [assistant, isOpen])
 
-  const handleInputChange = (field: string, value: any) => {
+  const handleInputChange = (field: string, value: string | number | boolean | string[]) => {
     setFormData(prev => ({
       ...prev,
       [field]: value
@@ -207,16 +208,6 @@ export function AssistantForm({ isOpen, onClose, onSuccess, assistant }: Assista
                   />
                 </div>
 
-                <div>
-                  <Label htmlFor="description">Description</Label>
-                  <Textarea
-                    id="description"
-                    value={formData.description}
-                    onChange={(e) => handleInputChange('description', e.target.value)}
-                    placeholder="Enter assistant description"
-                    rows={3}
-                  />
-                </div>
               </div>
 
               {/* Messages */}

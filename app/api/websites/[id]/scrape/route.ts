@@ -8,149 +8,66 @@ import { generateEmbeddings, estimateTokens, EMBEDDINGS_ENABLED } from '@/lib/op
 
 const prisma = new PrismaClient()
 
-// GET /api/websites - Get all websites for a specific assistant
-export async function GET(request: NextRequest) {
+// POST /api/websites/[id]/scrape - Manually trigger scraping for a website
+export async function POST(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
   try {
     const session = await getServerSession(authOptions)
     if (!session?.user?.id) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const { searchParams } = new URL(request.url)
-    const assistantId = searchParams.get('assistantId')
+    const { id: websiteId } = await params
 
-    if (!assistantId) {
-      return NextResponse.json(
-        { error: 'Assistant ID is required' },
-        { status: 400 }
-      )
-    }
-
-    // Verify the assistant belongs to the user
-    const assistant = await prisma.chatbot_settings.findFirst({
+    // Get the website and verify ownership
+    const website = await prisma.website.findFirst({
       where: {
-        id: assistantId,
-        userId: session.user.id
+        id: websiteId
       }
     })
 
-    if (!assistant) {
+    if (!website) {
       return NextResponse.json(
-        { error: 'Assistant not found' },
+        { error: 'Website not found' },
         { status: 404 }
       )
     }
 
-    const websites = await prisma.website.findMany({
-      where: {
-        assistantId: assistantId
-      },
-      orderBy: { createdAt: 'desc' }
-    })
-
-    return NextResponse.json(websites)
-  } catch (error) {
-    console.error('Error fetching websites:', error)
-    return NextResponse.json(
-      { error: 'Failed to fetch websites' },
-      { status: 500 }
-    )
-  }
-}
-
-// POST /api/websites - Create a new website
-export async function POST(request: NextRequest) {
-  try {
-    const session = await getServerSession(authOptions)
-    if (!session?.user?.id) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-    }
-
-    const body = await request.json()
-    const { url, name, description, syncInterval, assistantId } = body
-
-    if (!url) {
-      return NextResponse.json(
-        { error: 'URL is required' },
-        { status: 400 }
-      )
-    }
-
-    if (!assistantId) {
-      return NextResponse.json(
-        { error: 'Assistant ID is required' },
-        { status: 400 }
-      )
-    }
-
-    // Validate URL format
-    try {
-      new URL(url)
-    } catch {
-      return NextResponse.json(
-        { error: 'Invalid URL format' },
-        { status: 400 }
-      )
-    }
-
     // Verify the assistant belongs to the user
-    const assistant = await prisma.chatbot_settings.findFirst({
-      where: {
-        id: assistantId,
-        userId: session.user.id
-      }
-    })
-
-    if (!assistant) {
+    if (!website.assistantId) {
       return NextResponse.json(
-        { error: 'Assistant not found' },
-        { status: 404 }
+        { error: 'Website has no associated assistant' },
+        { status: 400 }
       )
     }
-
-    // Normalize URL for comparison (remove trailing slash, convert to lowercase)
-    const normalizedUrl = url.toLowerCase().replace(/\/$/, '')
     
-    // Check if website already exists for this assistant
-    const existingWebsite = await prisma.website.findFirst({
-      where: { 
-        assistantId: assistantId,
-        url: {
-          equals: normalizedUrl,
-          mode: 'insensitive'
-        }
+    const assistant = await prisma.chatbot_settings.findFirst({
+      where: {
+        id: website.assistantId,
+        userId: session.user.id
       }
     })
 
-    if (existingWebsite) {
+    if (!assistant) {
       return NextResponse.json(
-        { 
-          error: 'This website URL has already been added to this assistant. Please choose a different URL or edit the existing one.',
-          code: 'DUPLICATE_URL'
-        },
-        { status: 409 }
+        { error: 'Unauthorized to access this website' },
+        { status: 403 }
       )
     }
-
-    const website = await prisma.website.create({
-      data: {
-        assistantId: assistantId,
-        url: normalizedUrl,
-        name: name || null,
-        description: description || null,
-        syncInterval: syncInterval || 'never',
-        status: 'PENDING'
-      }
-    })
 
     // Start scraping in the background
-    scrapeWebsiteInBackground(website.id, normalizedUrl)
+    scrapeWebsiteInBackground(websiteId, website.url)
 
-    return NextResponse.json(website, { status: 201 })
+    return NextResponse.json({ 
+      message: 'Scraping started',
+      status: 'SYNCING'
+    })
   } catch (error) {
-    console.error('Error creating website:', error)
+    console.error('Error starting website scraping:', error)
     return NextResponse.json(
-      { error: 'Failed to create website' },
+      { error: 'Failed to start scraping' },
       { status: 500 }
     )
   }
@@ -166,6 +83,11 @@ async function scrapeWebsiteInBackground(websiteId: string, url: string) {
         status: 'SYNCING',
         lastSync: new Date()
       }
+    })
+
+    // Clear existing pages
+    await prisma.websitePage.deleteMany({
+      where: { websiteId }
     })
 
     const scraper = new WebsiteScraper(10, 2) // Max 10 pages, depth 2
@@ -213,7 +135,7 @@ async function scrapeWebsiteInBackground(websiteId: string, url: string) {
       // Create document chunks for RAG if content exists and OpenAI is available
       if (page.content && page.content.trim().length > 0 && !page.error && process.env.OPENAI_API_KEY && EMBEDDINGS_ENABLED) {
         try {
-          await createDocumentChunksForPage(websitePage, { id: websiteId, url: url })
+          await createDocumentChunksForPage(websitePage, { id: websiteId, url: website.url })
         } catch (embeddingError) {
           console.warn(`Failed to create embeddings for page ${page.url}:`, embeddingError)
           // Continue without embeddings - the page is still saved

@@ -3,7 +3,7 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { stripe } from '@/lib/stripe';
 import { prisma } from '@/lib/prisma';
-import { SUBSCRIPTION_PLANS } from '@/lib/stripe';
+import { SUBSCRIPTION_PLANS_WITH_PRICES, type SubscriptionPlanType } from '@/lib/stripe';
 
 export async function GET() {
   try {
@@ -50,7 +50,7 @@ export async function GET() {
         ...user,
         isTrialActive,
         trialDaysRemaining,
-        currentPlan: user.subscriptionPlan ? SUBSCRIPTION_PLANS[user.subscriptionPlan] : null
+        currentPlan: user.subscriptionPlan ? SUBSCRIPTION_PLANS_WITH_PRICES[user.subscriptionPlan] : null
       }
     });
   } catch (error) {
@@ -69,7 +69,7 @@ export async function POST(req: NextRequest) {
 
     const { plan } = await req.json();
 
-    if (!plan || !SUBSCRIPTION_PLANS[plan as keyof typeof SUBSCRIPTION_PLANS]) {
+    if (!plan || !SUBSCRIPTION_PLANS_WITH_PRICES[plan as SubscriptionPlanType]) {
       return NextResponse.json({ error: 'Invalid plan' }, { status: 400 });
     }
 
@@ -81,7 +81,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'User not found' }, { status: 404 });
     }
 
-    const selectedPlan = SUBSCRIPTION_PLANS[plan as keyof typeof SUBSCRIPTION_PLANS];
+    const selectedPlan = SUBSCRIPTION_PLANS_WITH_PRICES[plan as SubscriptionPlanType];
     
     if (!selectedPlan.priceId) {
       return NextResponse.json({ error: 'Plan not configured' }, { status: 400 });

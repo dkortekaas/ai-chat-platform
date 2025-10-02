@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Download, RefreshCw, CreditCard, AlertCircle, CheckCircle } from 'lucide-react'
-import { SUBSCRIPTION_PLANS } from '@/lib/stripe'
+import { SUBSCRIPTION_PLANS } from '@/lib/subscription-plans'
 import { useToast } from '@/hooks/use-toast'
 
 interface SubscriptionData {

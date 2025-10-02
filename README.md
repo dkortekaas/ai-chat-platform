@@ -23,6 +23,19 @@ A modern, fully functional AI chat platform built with Next.js 15, TypeScript, a
 - **Metadata Extraction**: Automatic extraction of document information
 - **File Management**: Edit, delete, and organize uploaded files
 
+### 🌐 Website Scraping & RAG Integration
+
+- **Intelligent Web Scraping**: Automatic content extraction from websites
+- **Multi-page Crawling**: Recursive scraping with configurable depth
+- **Content Processing**: Smart text extraction focusing on main content areas
+- **Link Discovery**: Automatic extraction and storage of all found links
+- **Vector Embeddings**: OpenAI embeddings for semantic search
+- **Document Chunking**: Intelligent text chunking with context preservation
+- **RAG Integration**: Full integration with Retrieval-Augmented Generation
+- **Real-time Processing**: Background scraping with status tracking
+- **Content View**: Dedicated page for viewing scraped content and links
+- **Manual Scraping**: On-demand re-scraping functionality
+
 ### 🤖 AI Assistant Management
 
 - **Multiple Assistants**: Create and manage multiple AI assistants
@@ -52,6 +65,10 @@ A modern, fully functional AI chat platform built with Next.js 15, TypeScript, a
 ### 🗄️ Knowledge Base (Kennisbank)
 
 - **Website Integration**: Sync and process website content
+- **Intelligent Web Scraping**: Automatic content extraction with multi-page crawling
+- **RAG Integration**: Full vector search and semantic understanding
+- **Content View**: Dedicated interface for viewing scraped website content
+- **Link Discovery**: Automatic extraction and management of website links
 - **FAQ Management**: Create and manage frequently asked questions
 - **File Upload**: Upload knowledge files for AI training
 - **Content Organization**: Organize knowledge by categories
@@ -138,6 +155,18 @@ A modern, fully functional AI chat platform built with Next.js 15, TypeScript, a
 - **Team Management**: User roles and permissions
 - **Subscription Management**: Billing, plan upgrades, and usage tracking
 
+### 🔍 RAG (Retrieval-Augmented Generation) System
+
+- **Vector Embeddings**: OpenAI text-embedding-3-small for semantic search
+- **Document Chunking**: Intelligent text splitting with context preservation
+- **Semantic Search**: Meaning-based search, not just keyword matching
+- **Hybrid Search**: Combines semantic and keyword search for best results
+- **Website Integration**: Automatic processing of scraped website content
+- **Real-time Indexing**: New content automatically becomes searchable
+- **Source Attribution**: AI responses include source references
+- **Multi-language Support**: Works with Dutch and English content
+- **Scalable Architecture**: Handles thousands of documents efficiently
+
 ## 🛠️ Technology Stack
 
 ### Frontend
@@ -154,10 +183,12 @@ A modern, fully functional AI chat platform built with Next.js 15, TypeScript, a
 
 - **Next.js API Routes**: Serverless API endpoints
 - **Prisma**: Database ORM
-- **PostgreSQL**: Primary database
+- **PostgreSQL**: Primary database with pgvector extension
 - **NextAuth.js**: Authentication
 - **bcryptjs**: Password hashing
 - **Stripe**: Payment processing and subscription management
+- **OpenAI**: AI embeddings and chat completions
+- **JSDOM**: Server-side HTML parsing for web scraping
 
 ### Development Tools
 
@@ -327,17 +358,52 @@ After running the seed script, you can login with these test accounts:
 7. Monitor conversation analytics
 8. **Manage subscription** in Account settings when trial expires
 
+## 🌐 Website Scraping Workflow
+
+### How Website Scraping Works
+
+1. **URL Addition**: User adds a website URL to the knowledge base
+2. **Automatic Scraping**: Background process starts scraping the website
+3. **Content Extraction**:
+   - Main content areas are identified and extracted
+   - All links are discovered and stored
+   - Text is cleaned and normalized
+4. **Multi-page Crawling**:
+   - Recursively scrapes linked pages (configurable depth)
+   - Respects same-domain policy
+   - Limits concurrent requests
+5. **Document Processing**:
+   - Content is chunked into manageable pieces (1000 chars with 200 overlap)
+   - OpenAI embeddings are generated for each chunk
+   - Chunks are stored in database with vector embeddings
+6. **RAG Integration**:
+   - Content becomes searchable via semantic search
+   - AI can now answer questions based on scraped content
+   - Source attribution is maintained
+
+### Content View Features
+
+- **Dedicated Content Page**: View all scraped content in organized interface
+- **Website Information**: Status, page count, last sync, error messages
+- **Content Display**: Full scraped text in readable format
+- **Link Management**: All discovered links with external navigation
+- **Individual Pages**: Detailed view of each scraped page
+- **Manual Scraping**: Re-scrape websites on demand
+- **Status Tracking**: Real-time processing status updates
+
 ## 📖 Usage
 
 ### Getting Started
 
 1. **Login with test account** or register a new account
 2. **Create an AI Assistant** in the Assistants section
-3. **Upload documents** or add websites in the Knowledge Base
-4. **Configure action buttons** for quick user interactions
-5. **Customize appearance** in Settings
-6. **Copy the embed code** and add to your website
-7. **Monitor performance** with analytics
+3. **Add websites** to the Knowledge Base for automatic scraping
+4. **Upload documents** or create FAQs for additional knowledge
+5. **Configure action buttons** for quick user interactions
+6. **View scraped content** in the dedicated content view pages
+7. **Customize appearance** in Settings
+8. **Copy the embed code** and add to your website
+9. **Monitor performance** with analytics
 
 ### User Roles
 
@@ -355,6 +421,9 @@ After running the seed script, you can login with these test accounts:
 ### Knowledge Base (Kennisbank)
 
 - **Websites**: Add and sync website content automatically
+- **Intelligent Scraping**: Multi-page crawling with content extraction
+- **RAG Integration**: Vector embeddings for semantic search
+- **Content View**: Dedicated page for viewing scraped content and links
 - **FAQs**: Create frequently asked questions
 - **Files**: Upload knowledge files (PDF, DOCX, TXT, etc.)
 - **Organization**: Categorize and manage knowledge sources
@@ -527,9 +596,10 @@ After running the seed script, you can login with these test accounts:
 - **Assistant**: AI assistants with full configuration
 - **ActionButton**: Quick interaction buttons for assistants
 - **Document**: Uploaded documents and metadata
-- **DocumentChunk**: Processed text chunks with embeddings
+- **DocumentChunk**: Processed text chunks with vector embeddings
 - **KnowledgeFile**: Knowledge base files
-- **Website**: Website integration for knowledge base
+- **Website**: Website integration for knowledge base with scraping data
+- **WebsitePage**: Individual scraped pages with content and links
 - **FAQ**: Frequently asked questions
 
 #### Communication
@@ -564,6 +634,7 @@ After running the seed script, you can login with these test accounts:
 - Prijs: €19.00
 - Billing: Recurring (monthly)
 - Kopieer de **Price ID** (begint met `price_`)
+- price_1SDqcqApPiHZWDZPlBH43AMb
 
 **Professional Plan:**
 
@@ -571,6 +642,7 @@ After running the seed script, you can login with these test accounts:
 - Prijs: €49.00
 - Billing: Recurring (monthly)
 - Kopieer de **Price ID**
+- price_1SDqdhApPiHZWDZPvG9BDMDb
 
 **Business Plan:**
 
@@ -578,6 +650,7 @@ After running the seed script, you can login with these test accounts:
 - Prijs: €149.00
 - Billing: Recurring (monthly)
 - Kopieer de **Price ID**
+- price_1SDqf0ApPiHZWDZPyPhMFAuy
 
 **Enterprise Plan:**
 
@@ -585,12 +658,15 @@ After running the seed script, you can login with these test accounts:
 - Prijs: €499.00
 - Billing: Recurring (monthly)
 - Kopieer de **Price ID**
+- price_1SDqfhApPiHZWDZPa4I8EK0b
 
 ### 3. API Keys Ophalen
 
 1. **Ga naar Developers** → **API Keys**
 2. **Kopieer je Secret Key** (begint met `sk_test_` voor test mode)
+   - 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
 3. **Kopieer je Publishable Key** (begint met `pk_test_` voor test mode)
+   - pk_live_51RP99TApPiHZWDZPyKENbLTRxNTBxx2tfJOXORHkPXL47OzKxdzQn6oVIScjwKF3MLqu5ValcaqrkAtd1vVUmJSK00kem6OZTh
 
 ### 4. Webhook Configuratie
 
@@ -604,8 +680,26 @@ After running the seed script, you can login with these test accounts:
    - `invoice.payment_succeeded`
    - `invoice.payment_failed`
 5. **Kopieer de Webhook Secret** (begint met `whsec_`)
+   - whsec_CidTU2XXYJNglJCBtwmOZvO1OGIpbkit
 
-### 5. Environment Variables Instellen
+### 5. OpenAI API Key Configureren
+
+Voor de RAG functionaliteit en website scraping heb je een OpenAI API key nodig:
+
+1. **Ga naar [OpenAI Platform](https://platform.openai.com/)**
+2. **Maak een account** of log in
+3. **Ga naar API Keys** in het menu
+4. **Klik op "Create new secret key"**
+5. **Kopieer de API key** (begint met `sk-`)
+6. **Voeg toe aan je `.env.local` bestand**
+
+**Belangrijk**:
+
+- De API key is nodig voor vector embeddings en semantic search
+- Zonder API key werkt website scraping wel, maar geen RAG functionaliteit
+- Kosten zijn ongeveer $0.02 per 1M tokens voor embeddings
+
+### 6. Environment Variables Instellen
 
 Update je `.env.local` bestand:
 
@@ -622,9 +716,12 @@ STRIPE_STARTER_PRICE_ID="price_1ABC123..."
 STRIPE_PROFESSIONAL_PRICE_ID="price_1DEF456..."
 STRIPE_BUSINESS_PRICE_ID="price_1GHI789..."
 STRIPE_ENTERPRISE_PRICE_ID="price_1JKL012..."
+
+# OpenAI Configuration (Required for RAG and embeddings)
+OPENAI_API_KEY="sk-..."
 ```
 
-### 6. Test Cards
+### 7. Test Cards
 
 Voor testing kun je deze Stripe test cards gebruiken:
 

@@ -88,6 +88,12 @@ export function WebsiteForm({ isOpen, onClose, onSuccess, website }: WebsiteForm
 
       if (!response.ok) {
         const error = await response.json()
+        
+        // Handle specific error cases
+        if (response.status === 409 && error.code === 'DUPLICATE_URL') {
+          throw new Error('This website URL has already been added to this assistant. Please choose a different URL or edit the existing one.')
+        }
+        
         throw new Error(error.error || 'Failed to save website')
       }
 

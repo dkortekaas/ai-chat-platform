@@ -4,17 +4,12 @@ import { createContext, useContext, useState, useEffect, ReactNode } from 'react
 
 interface Assistant {
   id: string
+  userId: string
   name: string
-  description?: string
   welcomeMessage: string
   placeholderText: string
   primaryColor: string
   secondaryColor: string
-  // Look and Feel settings
-  fontFamily: string
-  assistantName: string
-  assistantSubtitle: string
-  selectedAvatar: string
   tone: string
   language: string
   maxResponseLength: number

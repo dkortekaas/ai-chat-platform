@@ -14,7 +14,9 @@ import {
   AlertCircle,
   Trash2,
   Edit,
-  Bot
+  Bot,
+  RefreshCw,
+  Eye
 } from 'lucide-react'
 import {
   DropdownMenu,
@@ -31,12 +33,14 @@ interface Website {
   url: string
   name?: string
   description?: string
-  pages: number
+  pageCount: number
   syncSpeed?: number
   syncInterval: string
   lastSync?: string
   status: 'PENDING' | 'SYNCING' | 'COMPLETED' | 'ERROR'
   errorMessage?: string
+  scrapedContent?: string
+  scrapedLinks?: string[]
   createdAt: string
   updatedAt: string
 }
@@ -124,6 +128,38 @@ export function WebsitesTab() {
   const handleFormClose = () => {
     setIsFormOpen(false)
     setEditingWebsite(null)
+  }
+
+  const handleScrapeWebsite = async (website: Website) => {
+    try {
+      const response = await fetch(`/api/websites/${website.id}/scrape`, {
+        method: 'POST',
+      })
+
+      if (response.ok) {
+        toast({
+          title: 'Scraping started',
+          description: 'The website scraping process has been initiated.',
+        })
+        // Refresh the websites list to show updated status
+        setTimeout(() => {
+          fetchWebsites()
+        }, 1000)
+      } else {
+        const error = await response.json()
+        throw new Error(error.error || 'Failed to start scraping')
+      }
+    } catch (error) {
+      toast({
+        title: 'Error',
+        description: error instanceof Error ? error.message : 'Failed to start scraping',
+        variant: 'destructive',
+      })
+    }
+  }
+
+  const handleViewContent = (website: Website) => {
+    router.push(`/kennisbank/websites/${website.id}/content`)
   }
 
   const getStatusIcon = (status: Website['status']) => {
@@ -271,7 +307,7 @@ export function WebsitesTab() {
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      {website.pages}
+                      {website.pageCount}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                       {website.syncSpeed ? website.syncSpeed.toFixed(2) : '-'}
@@ -297,8 +333,14 @@ export function WebsitesTab() {
                             <Edit className="w-4 h-4 mr-2" />
                             Edit
                           </DropdownMenuItem>
-                          <DropdownMenuItem>Sync Now</DropdownMenuItem>
-                          <DropdownMenuItem>View Details</DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => handleScrapeWebsite(website)}>
+                            <RefreshCw className="w-4 h-4 mr-2" />
+                            Scrape Now
+                          </DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => handleViewContent(website)}>
+                            <Eye className="w-4 h-4 mr-2" />
+                            View Content
+                          </DropdownMenuItem>
                           <DropdownMenuItem 
                             className="text-red-600"
                             onClick={() => handleDeleteWebsite(website)}

@@ -26,7 +26,7 @@ import {
 import { useToast } from '@/hooks/use-toast'
 import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
-import { SUBSCRIPTION_PLANS } from '@/lib/stripe'
+import { SUBSCRIPTION_PLANS } from '@/lib/subscription-plans'
 
 interface SubscriptionUser {
   id: string

@@ -27,7 +27,7 @@ export async function GET(
     }
 
     const { id } = await params
-    const assistant = await prisma.assistant.findFirst({
+    const assistant = await prisma.chatbot_settings.findFirst({
       where: {
         id,
         userId: session.user.id
@@ -74,10 +74,10 @@ export async function PUT(
 
     const { id } = await params
     const body = await request.json()
-    const { name, description, welcomeMessage, placeholderText, primaryColor, secondaryColor, fontFamily, assistantName, assistantSubtitle, selectedAvatar, tone, language, maxResponseLength, temperature, fallbackMessage, position, showBranding, isActive, allowedDomains, rateLimit } = body
+    const { name, welcomeMessage, placeholderText, primaryColor, secondaryColor, tone, language, maxResponseLength, temperature, fallbackMessage, position, showBranding, isActive, allowedDomains, rateLimit } = body
 
     // Check if assistant exists and belongs to user
-    const existingAssistant = await prisma.assistant.findFirst({
+    const existingAssistant = await prisma.chatbot_settings.findFirst({
       where: {
         id,
         userId: session.user.id
@@ -99,21 +99,16 @@ export async function PUT(
       )
     }
 
-    const assistant = await prisma.assistant.update({
+    const assistant = await prisma.chatbot_settings.update({
       where: {
         id
       },
       data: {
         name,
-        description,
         welcomeMessage,
         placeholderText,
         primaryColor,
         secondaryColor,
-        fontFamily,
-        assistantName,
-        assistantSubtitle,
-        selectedAvatar,
         tone,
         language,
         maxResponseLength,
@@ -123,7 +118,8 @@ export async function PUT(
         showBranding,
         isActive,
         allowedDomains,
-        rateLimit
+        rateLimit,
+        updatedAt: new Date()
       }
     })
 
@@ -160,7 +156,7 @@ export async function DELETE(
 
     const { id } = await params
     // Check if assistant exists and belongs to user
-    const existingAssistant = await prisma.assistant.findFirst({
+    const existingAssistant = await prisma.chatbot_settings.findFirst({
       where: {
         id,
         userId: session.user.id
@@ -175,7 +171,7 @@ export async function DELETE(
     }
 
     // Delete assistant (this will cascade delete all related data)
-    await prisma.assistant.delete({
+    await prisma.chatbot_settings.delete({
       where: {
         id
       }

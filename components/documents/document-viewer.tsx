@@ -1,32 +1,37 @@
 'use client'
 
+import { useState } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
-import { FileText, Globe, Calendar, HardDrive } from 'lucide-react'
+import { Button } from '@/components/ui/button'
+import { FileText, Globe, Calendar, HardDrive, Eye, EyeOff } from 'lucide-react'
 
 interface DocumentViewerProps {
-  documentId: string
+  document: DocumentData
 }
 
-// Mock data - replace with real data
-const mockDocument = {
-  id: '1',
-  title: 'Producthandleiding.pdf',
-  type: 'PDF',
-  size: '2.4 MB',
-  uploadedAt: '2024-01-15T10:30:00Z',
-  status: 'processed',
-  content: 'Dit is een voorbeeld van de document inhoud. In een echte implementatie zou hier de volledige tekst van het document staan die door de AI is geëxtraheerd en verwerkt.',
+interface DocumentData {
+  id: string
+  title: string
+  type: string
+  size: string
+  uploadedAt: string
+  status: string
+  content: string
   metadata: {
-    pages: 25,
-    words: 5420,
-    language: 'nl'
+    mimeType: string
+    fileExtension: string
+    words: number
+    chunks: number
+    description?: string
+    errorMessage?: string
+    documentId?: string
+    hasEmbeddings: boolean
   }
 }
 
-export function DocumentViewer({ documentId }: DocumentViewerProps) {
-  // TODO: Fetch document by ID
-  const document = mockDocument
+export function DocumentViewer({ document }: DocumentViewerProps) {
+  const [showFullContent, setShowFullContent] = useState(false)
 
   const getIcon = () => {
     switch (document.type.toLowerCase()) {
@@ -35,6 +40,34 @@ export function DocumentViewer({ documentId }: DocumentViewerProps) {
       default:
         return <FileText className="h-6 w-6 text-gray-500" />
     }
+  }
+
+  const getStatusBadge = () => {
+    switch (document.status) {
+      case 'completed':
+        return <Badge variant="default">Verwerkt</Badge>
+      case 'processing':
+        return <Badge variant="secondary">Bezig...</Badge>
+      case 'failed':
+        return <Badge variant="destructive">Mislukt</Badge>
+      default:
+        return <Badge variant="secondary">{document.status}</Badge>
+    }
+  }
+
+  const getContentPreview = () => {
+    if (!document.content || document.content === 'Content niet beschikbaar') {
+      return document.content || 'Geen content beschikbaar'
+    }
+    
+    if (showFullContent) {
+      return document.content
+    }
+    
+    // Show first 500 characters as preview
+    return document.content.length > 500 
+      ? document.content.substring(0, 500) + '...'
+      : document.content
   }
 
   return (
@@ -59,9 +92,7 @@ export function DocumentViewer({ documentId }: DocumentViewerProps) {
                 </div>
               </div>
             </div>
-            <Badge variant={document.status === 'processed' ? 'default' : 'secondary'}>
-              {document.status === 'processed' ? 'Verwerkt' : 'Bezig...'}
-            </Badge>
+            {getStatusBadge()}
           </div>
         </CardHeader>
       </Card>
@@ -72,40 +103,76 @@ export function DocumentViewer({ documentId }: DocumentViewerProps) {
           <CardTitle>Metadata</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             <div>
               <p className="text-sm font-medium text-gray-500">Type</p>
-              <p className="text-sm">{document.type}</p>
-            </div>
-            <div>
-              <p className="text-sm font-medium text-gray-500">Pagina's</p>
-              <p className="text-sm">{document.metadata.pages}</p>
+              <p className="text-sm">{document.metadata.fileExtension}</p>
             </div>
             <div>
               <p className="text-sm font-medium text-gray-500">Woorden</p>
               <p className="text-sm">{document.metadata.words.toLocaleString('nl-NL')}</p>
             </div>
             <div>
-              <p className="text-sm font-medium text-gray-500">Taal</p>
-              <p className="text-sm">{document.metadata.language.toUpperCase()}</p>
+              <p className="text-sm font-medium text-gray-500">Chunks</p>
+              <p className="text-sm">{document.metadata.chunks}</p>
+            </div>
+            <div>
+              <p className="text-sm font-medium text-gray-500">Embeddings</p>
+              <p className="text-sm">{document.metadata.hasEmbeddings ? 'Ja' : 'Nee'}</p>
             </div>
           </div>
+          {document.metadata.description && (
+            <div className="mt-4">
+              <p className="text-sm font-medium text-gray-500">Beschrijving</p>
+              <p className="text-sm">{document.metadata.description}</p>
+            </div>
+          )}
+          {document.metadata.errorMessage && (
+            <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded-md">
+              <p className="text-sm font-medium text-red-800">Error</p>
+              <p className="text-sm text-red-700">{document.metadata.errorMessage}</p>
+            </div>
+          )}
         </CardContent>
       </Card>
 
       {/* Document Content */}
       <Card>
         <CardHeader>
-          <CardTitle>Geëxtraheerde inhoud</CardTitle>
+          <div className="flex items-center justify-between">
+            <CardTitle>Geëxtraheerde inhoud</CardTitle>
+            <div className="flex space-x-2">
+              {document.content && document.content.length > 500 && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setShowFullContent(!showFullContent)}
+                >
+                  {showFullContent ? (
+                    <>
+                      <EyeOff className="h-4 w-4 mr-2" />
+                      Verberg
+                    </>
+                  ) : (
+                    <>
+                      <Eye className="h-4 w-4 mr-2" />
+                      Toon volledig
+                    </>
+                  )}
+                </Button>
+              )}
+            </div>
+          </div>
         </CardHeader>
         <CardContent>
           <div className="prose max-w-none">
-            <p className="text-sm text-gray-700 leading-relaxed">
-              {document.content}
-            </p>
+            <div className="text-sm text-gray-700 leading-relaxed whitespace-pre-wrap">
+              {getContentPreview()}
+            </div>
           </div>
         </CardContent>
       </Card>
     </div>
   )
 }
+

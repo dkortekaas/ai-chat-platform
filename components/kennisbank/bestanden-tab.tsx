@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
@@ -44,6 +45,7 @@ interface KnowledgeFile {
 }
 
 export function BestandenTab() {
+  const router = useRouter()
   const [files, setFiles] = useState<KnowledgeFile[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [isUploadModalOpen, setIsUploadModalOpen] = useState(false)
@@ -86,6 +88,10 @@ export function BestandenTab() {
   const handleEditFile = (file: KnowledgeFile) => {
     setEditingFile(file)
     setIsEditModalOpen(true)
+  }
+
+  const handleViewFile = (file: KnowledgeFile) => {
+    router.push(`/documents/${file.id}`)
   }
 
   const handleDeleteFile = (file: KnowledgeFile) => {
@@ -353,6 +359,10 @@ export function BestandenTab() {
                           </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
+                          <DropdownMenuItem onClick={() => handleViewFile(file)}>
+                            <Eye className="w-4 h-4 mr-2" />
+                            View
+                          </DropdownMenuItem>
                           <DropdownMenuItem onClick={() => handleDownloadFile(file)}>
                             <Download className="w-4 h-4 mr-2" />
                             Download
@@ -404,6 +414,7 @@ export function BestandenTab() {
         itemName={fileToDelete?.originalName || ''}
         isLoading={isDeleting}
       />
+
     </div>
   )
 }

@@ -32,6 +32,7 @@ model User {
   accounts              Account[]
   chatbot_settings      chatbot_settings[]
   sessions              Session[]
+  notifications         Notification[]
 
   @@map("users")
 }
@@ -166,34 +167,61 @@ model SystemLog {
 
 model Website {
   id           String        @id @default(cuid())
+  assistantId  String?
   url          String        @unique
   name         String?
   description  String?
-  pages        Int           @default(0)
+  pageCount    Int           @default(0)
   syncSpeed    Float?        @default(0)
   syncInterval String        @default("never")
   lastSync     DateTime?
   status       WebsiteStatus @default(PENDING)
   errorMessage String?
+  scrapedContent String?     // Main content text from scraping
+  scrapedLinks   Json?       // Array of found links
   createdAt    DateTime      @default(now())
   updatedAt    DateTime      @updatedAt
+  pages        WebsitePage[]
 
   @@index([status])
   @@index([createdAt])
+  @@index([assistantId])
   @@map("websites")
 }
 
+model WebsitePage {
+  id          String        @id @default(cuid())
+  websiteId   String
+  url         String
+  title       String?
+  content     String        // Scraped content text
+  links       Json?         // Links found on this page
+  status      WebsiteStatus @default(PENDING)
+  errorMessage String?
+  scrapedAt   DateTime?
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  website     Website       @relation(fields: [websiteId], references: [id], onDelete: Cascade)
+
+  @@index([websiteId])
+  @@index([status])
+  @@index([scrapedAt])
+  @@map("website_pages")
+}
+
 model FAQ {
-  id        String   @id @default(cuid())
-  question  String
-  answer    String
-  enabled   Boolean  @default(true)
-  order     Int      @default(0)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id          String   @id @default(cuid())
+  assistantId String?
+  question    String
+  answer      String
+  enabled     Boolean  @default(true)
+  order       Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 
   @@index([enabled])
   @@index([order])
+  @@index([assistantId])
   @@map("faqs")
 }
 
@@ -208,6 +236,7 @@ model KnowledgeFile {
   status       FileStatus @default(PROCESSING)
   errorMessage String?
   description  String?
+  metadata     Json?
   createdAt    DateTime   @default(now())
   updatedAt    DateTime   @updatedAt
 
@@ -239,6 +268,28 @@ model chatbot_settings {
   createdAt         DateTime @default(now())
   updatedAt         DateTime
   users             User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Notification {
+  id            String           @id @default(cuid())
+  title         String
+  message       String
+  type          NotificationType @default(INFO)
+  priority      NotificationPriority @default(MEDIUM)
+  targetUsers   String[]         @default([]) // Empty array means all users
+  isActive      Boolean          @default(true)
+  isRead        Boolean          @default(false)
+  expiresAt     DateTime?
+  createdBy     String
+  createdAt     DateTime         @default(now())
+  updatedAt     DateTime         @updatedAt
+  createdByUser User             @relation(fields: [createdBy], references: [id], onDelete: Cascade)
+
+  @@index([isActive])
+  @@index([isRead])
+  @@index([createdAt])
+  @@index([expiresAt])
+  @@map("notifications")
 }
 
 enum UserRole {
@@ -297,4 +348,18 @@ enum FileStatus {
   PROCESSING
   COMPLETED
   ERROR
+}
+
+enum NotificationType {
+  INFO
+  WARNING
+  ERROR
+  SUCCESS
+}
+
+enum NotificationPriority {
+  LOW
+  MEDIUM
+  HIGH
+  URGENT
 }

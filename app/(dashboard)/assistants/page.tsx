@@ -30,16 +30,12 @@ import { useAssistant } from '@/contexts/assistant-context'
 
 interface Assistant {
   id: string
+  userId: string
   name: string
-  description?: string
   welcomeMessage: string
   placeholderText: string
   primaryColor: string
   secondaryColor: string
-  fontFamily: string
-  assistantName: string
-  assistantSubtitle: string
-  selectedAvatar: string
   tone: string
   language: string
   maxResponseLength: number
@@ -83,15 +79,10 @@ export default function AssistantsPage() {
         },
         body: JSON.stringify({
           name: `${assistant.name} (Copy)`,
-          description: assistant.description,
           welcomeMessage: assistant.welcomeMessage,
           placeholderText: assistant.placeholderText,
           primaryColor: assistant.primaryColor,
           secondaryColor: assistant.secondaryColor,
-          fontFamily: assistant.fontFamily || 'Inter',
-          assistantName: assistant.assistantName || 'PS in foodservice',
-          assistantSubtitle: assistant.assistantSubtitle || 'We helpen je graag verder!',
-          selectedAvatar: assistant.selectedAvatar || 'chat-bubble',
           tone: assistant.tone,
           language: assistant.language,
           maxResponseLength: assistant.maxResponseLength,
@@ -301,11 +292,9 @@ export default function AssistantsPage() {
                 </div>
 
                 {/* Assistant Description */}
-                {assistant.description && (
-                  <p className="text-sm text-gray-600 line-clamp-2">
-                    {assistant.description}
-                  </p>
-                )}
+                <p className="text-sm text-gray-600 line-clamp-2">
+                  {assistant.welcomeMessage}
+                </p>
 
                 {/* Assistant Status */}
                 <div className="flex items-center justify-between">
