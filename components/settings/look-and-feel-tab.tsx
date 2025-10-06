@@ -2,12 +2,11 @@
 
 import { useState, useEffect } from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
 import SaveButton from '@/components/ui/save-button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { Info, Save } from 'lucide-react'
+import { Info } from 'lucide-react'
 import { useAssistant } from '@/contexts/assistant-context'
 import { useToast } from '@/hooks/use-toast'
 import { ChatbotPreview } from './chatbot-preview'
@@ -48,10 +47,10 @@ export function LookAndFeelTab({ onChanges }: LookAndFeelTabProps) {
   // Load data from current assistant
   useEffect(() => {
     if (currentAssistant) {
-      setFontFamily(currentAssistant.fontFamily || 'Inter')
-      setAssistantName(currentAssistant.assistantName || 'PS in foodservice')
-      setAssistantSubtitle(currentAssistant.assistantSubtitle || 'We helpen je graag verder!')
-      setSelectedAvatar(currentAssistant.selectedAvatar || 'chat-bubble')
+      setFontFamily('Inter') // Default font family
+      setAssistantName(currentAssistant.name || 'PS in foodservice')
+      setAssistantSubtitle('We helpen je graag verder!') // Default subtitle
+      setSelectedAvatar('chat-bubble') // Default avatar
     }
   }, [currentAssistant])
 

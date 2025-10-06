@@ -5,7 +5,6 @@ import { useSession, signOut } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import { 
   User, 
-  Settings, 
   Key, 
   LogOut, 
   ChevronDown,

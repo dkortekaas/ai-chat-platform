@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, Suspense } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { 
@@ -26,7 +26,7 @@ const tabs = [
   { id: 'widget', name: 'Widget', component: WidgetTab },
 ]
 
-export default function SettingsPage() {
+function SettingsPageContent() {
   const searchParams = useSearchParams()
   const [activeTab, setActiveTab] = useState('look-and-feel')
   const [hasChanges, setHasChanges] = useState(false)
@@ -121,5 +121,13 @@ export default function SettingsPage() {
         {ActiveComponent && <ActiveComponent onChanges={setHasChanges} />}
       </div>
     </div>
+  )
+}
+
+export default function SettingsPage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <SettingsPageContent />
+    </Suspense>
   )
 }

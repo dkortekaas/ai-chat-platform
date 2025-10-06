@@ -79,7 +79,7 @@ export default function WebsiteContentPage() {
         const pagesData = await pagesResponse.json()
         setPages(pagesData)
       }
-    } catch (error) {
+    } catch {
       toast({
         title: 'Error',
         description: 'Failed to load website content',

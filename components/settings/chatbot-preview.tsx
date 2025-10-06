@@ -31,7 +31,6 @@ export function ChatbotPreview({
   assistantSubtitle,
   selectedAvatar,
   primaryColor,
-  secondaryColor,
   welcomeMessage,
   placeholderText
 }: ChatbotPreviewProps) {

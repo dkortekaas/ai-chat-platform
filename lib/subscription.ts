@@ -121,19 +121,7 @@ export async function getUsageStats(userId: string) {
   const user = await prisma.user.findUnique({
     where: { id: userId },
     include: {
-      assistants: {
-        include: {
-          documents: true,
-          websites: true,
-          conversations: {
-            where: {
-              createdAt: {
-                gte: new Date(new Date().getFullYear(), new Date().getMonth(), 1) // This month
-              }
-            }
-          }
-        }
-      }
+      chatbot_settings: true
     }
   });
 
@@ -141,13 +129,21 @@ export async function getUsageStats(userId: string) {
     return null;
   }
 
-  const totalAssistants = user.assistants.length;
-  const totalDocuments = user.assistants.reduce((sum, assistant) => sum + assistant.documents.length, 0);
-  const totalWebsites = user.assistants.reduce((sum, assistant) => sum + assistant.websites.length, 0);
-  const monthlyConversations = user.assistants.reduce((sum, assistant) => sum + assistant.conversations.length, 0);
+  // Get basic counts - relationships are complex in this schema
+  const [totalDocuments, totalWebsites, monthlyConversations] = await Promise.all([
+    prisma.document.count(),
+    prisma.website.count(),
+    prisma.conversation.count({
+      where: {
+        createdAt: {
+          gte: new Date(new Date().getFullYear(), new Date().getMonth(), 1) // This month
+        }
+      }
+    })
+  ]);
 
   return {
-    assistants: totalAssistants,
+    assistants: user.chatbot_settings.length,
     documents: totalDocuments,
     websites: totalWebsites,
     conversations: monthlyConversations

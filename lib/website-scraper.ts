@@ -19,7 +19,7 @@ export class WebsiteScraper {
   private maxPages: number
   private maxDepth: number
   private visitedUrls: Set<string>
-  private baseDomain: string
+  private baseDomain!: string
 
   constructor(maxPages: number = 10, maxDepth: number = 2) {
     this.maxPages = maxPages

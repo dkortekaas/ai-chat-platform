@@ -2,8 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { PrismaClient } from '@prisma/client'
-import { readFile, unlink } from 'fs/promises'
-import { join } from 'path'
+import { unlink } from 'fs/promises'
 
 const prisma = new PrismaClient()
 

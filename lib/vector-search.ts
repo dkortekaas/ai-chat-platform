@@ -206,11 +206,10 @@ export async function getRelatedContent(
 
   // Get the embedding of the source chunk
   const sourceChunk = await prisma.documentChunk.findUnique({
-    where: { id: chunkId },
-    select: { embedding: true }
+    where: { id: chunkId }
   })
 
-  if (!sourceChunk?.embedding) {
+  if (!sourceChunk || !(sourceChunk as { embedding?: unknown }).embedding) {
     return []
   }
 
@@ -222,7 +221,7 @@ export async function getRelatedContent(
       d.name as "documentName",
       d.type as "documentType",
       dc.content,
-      1 - (dc.embedding <=> ${JSON.stringify(sourceChunk.embedding)}::vector) as similarity,
+      1 - (dc.embedding <=> ${JSON.stringify((sourceChunk as unknown as { embedding: unknown }).embedding)}::vector) as similarity,
       d.metadata,
       d.url
     FROM document_chunks dc
@@ -230,8 +229,8 @@ export async function getRelatedContent(
     WHERE
       d.status = 'COMPLETED'
       AND dc.id != ${chunkId}
-      AND 1 - (dc.embedding <=> ${JSON.stringify(sourceChunk.embedding)}::vector) > ${similarityThreshold}
-    ORDER BY dc.embedding <=> ${JSON.stringify(sourceChunk.embedding)}::vector
+      AND 1 - (dc.embedding <=> ${JSON.stringify((sourceChunk as unknown as { embedding: unknown }).embedding)}::vector) > ${similarityThreshold}
+    ORDER BY dc.embedding <=> ${JSON.stringify((sourceChunk as unknown as { embedding: unknown }).embedding)}::vector
     LIMIT ${limit}
   `
 

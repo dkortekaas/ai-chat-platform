@@ -2,7 +2,6 @@
 
 import { useState } from 'react'
 import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
 import { 
   Bot, 
   ChevronDown, 
@@ -25,8 +24,11 @@ export function AssistantSwitcher() {
   const [isOpen, setIsOpen] = useState(false)
   const router = useRouter()
 
-  const handleAssistantSelect = (assistant: { id: string; name: string; primaryColor: string }) => {
-    setCurrentAssistant(assistant)
+  const handleAssistantSelect = (assistantId: string) => {
+    const assistant = assistants.find(a => a.id === assistantId)
+    if (assistant) {
+      setCurrentAssistant(assistant)
+    }
     setIsOpen(false)
   }
 
@@ -83,7 +85,7 @@ export function AssistantSwitcher() {
         {assistants.map((assistant) => (
           <DropdownMenuItem
             key={assistant.id}
-            onClick={() => handleAssistantSelect(assistant)}
+            onClick={() => handleAssistantSelect(assistant.id)}
             className="flex items-center justify-between cursor-pointer"
           >
             <div className="flex items-center gap-2 min-w-0 flex-1">

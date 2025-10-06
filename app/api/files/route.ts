@@ -331,7 +331,7 @@ async function processDocumentForAI(fileId: string, filePath: string, mimeType: 
 
         // Save chunks in batches
         for (const chunk of documentChunks) {
-          await prisma.documentChunk.create({
+          await (prisma.documentChunk as unknown as { create: (args: unknown) => Promise<unknown> }).create({
             data: {
               ...chunk,
               metadata: chunk.metadata
@@ -345,13 +345,13 @@ async function processDocumentForAI(fileId: string, filePath: string, mimeType: 
         
         // Still create chunks without embeddings
         for (const chunk of chunks) {
-          await prisma.documentChunk.create({
+          await (prisma.documentChunk as unknown as { create: (args: unknown) => Promise<unknown> }).create({
             data: {
               documentId: document.id,
               chunkIndex: chunk.chunkIndex,
               content: chunk.content,
               tokenCount: estimateTokens(chunk.content),
-              metadata: chunk.metadata as Record<string, unknown>
+              metadata: chunk.metadata
             }
           })
         }
@@ -361,13 +361,13 @@ async function processDocumentForAI(fileId: string, filePath: string, mimeType: 
     } else {
       // Create chunks without embeddings
       for (const chunk of chunks) {
-        await prisma.documentChunk.create({
+        await (prisma.documentChunk as unknown as { create: (args: unknown) => Promise<unknown> }).create({
           data: {
             documentId: document.id,
             chunkIndex: chunk.chunkIndex,
             content: chunk.content,
             tokenCount: estimateTokens(chunk.content),
-            metadata: chunk.metadata as Record<string, unknown>
+            metadata: chunk.metadata
           }
         })
       }

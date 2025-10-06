@@ -10,9 +10,6 @@ import {
   Upload, 
   MoreVertical,
   FileText,
-  CheckCircle,
-  Clock,
-  AlertCircle,
   Edit,
   Trash2,
   Download,
@@ -156,7 +153,7 @@ export function BestandenTab() {
       } else {
         throw new Error('Failed to download file')
       }
-    } catch (error) {
+    } catch {
       toast({
         title: 'Error',
         description: 'Failed to download file',
@@ -243,16 +240,6 @@ export function BestandenTab() {
     return `${Math.floor(diffInDays / 365)} years ago`
   }
 
-  const getProcessingIcon = (status: KnowledgeFile['status']) => {
-    switch (status) {
-      case 'COMPLETED':
-        return <CheckCircle className="w-4 h-4 text-green-600" />
-      case 'PROCESSING':
-        return <Clock className="w-4 h-4 text-yellow-600" />
-      case 'ERROR':
-        return <AlertCircle className="w-4 h-4 text-red-600" />
-    }
-  }
 
   const getProcessingBadge = (status: KnowledgeFile['status']) => {
     switch (status) {

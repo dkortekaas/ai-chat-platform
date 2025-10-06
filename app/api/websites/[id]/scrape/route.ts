@@ -135,7 +135,14 @@ async function scrapeWebsiteInBackground(websiteId: string, url: string) {
       // Create document chunks for RAG if content exists and OpenAI is available
       if (page.content && page.content.trim().length > 0 && !page.error && process.env.OPENAI_API_KEY && EMBEDDINGS_ENABLED) {
         try {
-          await createDocumentChunksForPage(websitePage, { id: websiteId, url: website.url })
+          await createDocumentChunksForPage({
+            id: websitePage.id,
+            url: websitePage.url,
+            title: websitePage.title,
+            content: websitePage.content,
+            scrapedAt: websitePage.scrapedAt,
+            links: (websitePage.links as string[]) || []
+          }, { id: websiteId, url: websitePage.url })
         } catch (embeddingError) {
           console.warn(`Failed to create embeddings for page ${page.url}:`, embeddingError)
           // Continue without embeddings - the page is still saved
@@ -224,7 +231,7 @@ async function createDocumentChunksForPage(websitePage: { id: string; url: strin
 
     // Save chunks in batches
     for (const chunk of documentChunks) {
-      await prisma.documentChunk.create({
+      await (prisma.documentChunk as unknown as { create: (args: unknown) => Promise<unknown> }).create({
         data: chunk
       })
     }

@@ -92,8 +92,8 @@ async function handleSubscriptionCreated(subscription: Stripe.Subscription) {
       subscriptionStatus: 'ACTIVE',
       subscriptionPlan: plan as 'STARTER' | 'PROFESSIONAL' | 'BUSINESS' | 'ENTERPRISE',
       stripeSubscriptionId: subscriptionId,
-      subscriptionStartDate: new Date(subscription.current_period_start * 1000),
-      subscriptionEndDate: new Date(subscription.current_period_end * 1000),
+      subscriptionStartDate: new Date((subscription as unknown as { current_period_start: number }).current_period_start * 1000),
+      subscriptionEndDate: new Date((subscription as unknown as { current_period_end: number }).current_period_end * 1000),
       subscriptionCanceled: false,
       subscriptionCancelAt: null
     }
@@ -104,7 +104,6 @@ async function handleSubscriptionCreated(subscription: Stripe.Subscription) {
 
 async function handleSubscriptionUpdated(subscription: Stripe.Subscription) {
   const customerId = typeof subscription.customer === 'string' ? subscription.customer : subscription.customer?.id;
-  const subscriptionId = subscription.id;
   
   const user = await prisma.user.findUnique({
     where: { stripeCustomerId: customerId }
@@ -116,12 +115,12 @@ async function handleSubscriptionUpdated(subscription: Stripe.Subscription) {
   }
 
   const updateData: { subscriptionEndDate: Date; subscriptionStatus?: string; subscriptionCancelAt?: Date; subscriptionCanceled?: boolean } = {
-    subscriptionEndDate: new Date(subscription.current_period_end * 1000),
+    subscriptionEndDate: new Date((subscription as unknown as { current_period_end: number }).current_period_end * 1000),
   };
 
   // Handle cancellation
   if (subscription.cancel_at_period_end) {
-    updateData.subscriptionCancelAt = new Date(subscription.current_period_end * 1000);
+    updateData.subscriptionCancelAt = new Date((subscription as unknown as { current_period_end: number }).current_period_end * 1000);
     updateData.subscriptionCanceled = true;
   } else {
     updateData.subscriptionCancelAt = undefined;
@@ -153,7 +152,7 @@ async function handleSubscriptionUpdated(subscription: Stripe.Subscription) {
       break;
   }
 
-  await prisma.user.update({
+  await (prisma.user as unknown as { update: (args: unknown) => Promise<unknown> }).update({
     where: { id: user.id },
     data: updateData
   });

@@ -1,12 +1,10 @@
 'use client'
 
-import { useSession } from 'next-auth/react'
 import { UserMenu } from './user-menu'
 import { AssistantSwitcher } from './assistant-switcher'
 import { NotificationDropdown } from './notification-dropdown'
 
 export function Header() {
-  const { data: session } = useSession()
 
   return (
     <header className="h-16 bg-white border-b border-gray-200 flex items-center justify-between px-6">

@@ -9,7 +9,7 @@ interface Filters {
   duration: string
 }
 
-export function ConversationFilters({ filters, onChange }: { filters: Filters, onChange: (filters: Filters) => void }) {
+export function ConversationFilters({ }: { filters: Filters, onChange: (filters: Filters) => void }) {
   return (
     <div className="flex items-center gap-3 mb-6">
       <Button variant="outline" className="flex items-center gap-2">

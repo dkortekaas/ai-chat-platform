@@ -8,7 +8,6 @@ import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { Switch } from '@/components/ui/switch'
 import { Badge } from '@/components/ui/badge'
 import { ColorPicker } from '@/components/chatbot/color-picker'
 import { ChatbotPreview } from '@/components/settings/chatbot-preview'
@@ -148,7 +147,7 @@ export default function NewAssistantPage() {
       const created = await response.json()
       toast({ title: 'Success', description: 'Assistant created successfully' })
       router.push(`/assistants/${created.id}/edit`)
-    } catch (error) {
+    } catch {
       toast({ title: 'Error', description: 'Failed to create assistant', variant: 'destructive' })
     } finally {
       setIsSaving(false)

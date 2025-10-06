@@ -9,9 +9,6 @@ import {
   Plus, 
   MoreVertical, 
   ExternalLink,
-  CheckCircle,
-  Clock,
-  AlertCircle,
   Trash2,
   Edit,
   Bot,
@@ -70,7 +67,7 @@ export function WebsitesTab() {
       } else {
         throw new Error('Failed to fetch websites')
       }
-    } catch (error) {
+    } catch {
       toast({
         title: 'Error',
         description: 'Failed to load websites',
@@ -174,18 +171,6 @@ export function WebsitesTab() {
     router.push(`/kennisbank/websites/${website.id}/content`)
   }
 
-  const getStatusIcon = (status: Website['status']) => {
-    switch (status) {
-      case 'COMPLETED':
-        return <CheckCircle className="w-4 h-4 text-green-600" />
-      case 'PENDING':
-        return <Clock className="w-4 h-4 text-yellow-600" />
-      case 'SYNCING':
-        return <Clock className="w-4 h-4 text-indigo-500" />
-      case 'ERROR':
-        return <AlertCircle className="w-4 h-4 text-red-600" />
-    }
-  }
 
   const getStatusBadge = (status: Website['status']) => {
     switch (status) {

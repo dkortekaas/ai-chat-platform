@@ -20,13 +20,19 @@ export async function GET(request: NextRequest) {
       where: {
         isActive: true,
         ...(unreadOnly && { isRead: false }),
-        OR: [
-          { targetUsers: { has: session.user.id } },
-          { targetUsers: { isEmpty: true } } // Empty array means all users
-        ],
-        OR: [
-          { expiresAt: null },
-          { expiresAt: { gt: new Date() } }
+        AND: [
+          {
+            OR: [
+              { targetUsers: { has: session.user.id } },
+              { targetUsers: { isEmpty: true } } // Empty array means all users
+            ]
+          },
+          {
+            OR: [
+              { expiresAt: null },
+              { expiresAt: { gt: new Date() } }
+            ]
+          }
         ]
       },
       include: {

@@ -57,7 +57,7 @@ export function RatingForm({
       })
 
       onSuccess?.()
-    } catch (error) {
+    } catch {
       toast({
         title: 'Error',
         description: 'Opslaan mislukt',

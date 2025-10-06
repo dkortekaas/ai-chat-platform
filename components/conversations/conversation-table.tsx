@@ -1,14 +1,16 @@
 'use client'
 
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
-import { ChevronDown, User, MessageCircle } from 'lucide-react'
+import { ChevronDown } from 'lucide-react'
 
 interface Conversation {
   id: string
-  userInput: string
-  time: string
-  messages: { user: number; assistant: number }
-  duration: string
+  question: string
+  answer: string
+  responseTime: number | null
+  rating: number | null
+  createdAt: string
+  tokensUsed: number | null
 }
 
 interface ConversationTableProps {
@@ -21,17 +23,17 @@ export function ConversationTable({ conversations }: ConversationTableProps) {
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead className="font-medium">User Input</TableHead>
+            <TableHead className="font-medium">Question</TableHead>
             <TableHead className="font-medium flex items-center gap-1">
-              Time
+              Created
               <ChevronDown className="h-4 w-4" />
             </TableHead>
             <TableHead className="font-medium flex items-center gap-1">
-              # Messages
+              Response Time
               <ChevronDown className="h-4 w-4" />
             </TableHead>
             <TableHead className="font-medium flex items-center gap-1">
-              Duration
+              Rating
               <ChevronDown className="h-4 w-4" />
             </TableHead>
           </TableRow>
@@ -39,17 +41,14 @@ export function ConversationTable({ conversations }: ConversationTableProps) {
         <TableBody>
           {conversations.map((conversation) => (
             <TableRow key={conversation.id}>
-              <TableCell className="text-gray-500">-</TableCell>
-              <TableCell>{conversation.time}</TableCell>
+              <TableCell className="max-w-xs truncate">{conversation.question}</TableCell>
+              <TableCell>{new Date(conversation.createdAt).toLocaleDateString()}</TableCell>
               <TableCell>
-                <div className="flex items-center gap-2">
-                  <User className="h-4 w-4 text-gray-400" />
-                  <span>{conversation.messages.user}</span>
-                  <MessageCircle className="h-4 w-4 text-gray-400" />
-                  <span>{conversation.messages.assistant}</span>
-                </div>
+                {conversation.responseTime ? `${conversation.responseTime}ms` : '-'}
               </TableCell>
-              <TableCell>{conversation.duration}</TableCell>
+              <TableCell>
+                {conversation.rating ? `${conversation.rating}/5` : '-'}
+              </TableCell>
             </TableRow>
           ))}
         </TableBody>

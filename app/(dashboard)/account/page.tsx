@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, Suspense } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { cn } from '@/lib/utils'
 
@@ -19,7 +19,7 @@ const tabs = [
   { id: 'team', name: 'Team', component: TeamTab },
 ]
 
-export default function AccountPage() {
+function AccountPageContent() {
   const searchParams = useSearchParams()
   const [activeTab, setActiveTab] = useState('personal-details')
 
@@ -67,5 +67,13 @@ export default function AccountPage() {
         {ActiveComponent && <ActiveComponent />}
       </div>
     </div>
+  )
+}
+
+export default function AccountPage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <AccountPageContent />
+    </Suspense>
   )
 }

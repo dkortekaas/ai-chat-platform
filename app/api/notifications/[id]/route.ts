@@ -19,13 +19,19 @@ export async function GET(
       where: {
         id,
         isActive: true,
-        OR: [
-          { targetUsers: { has: session.user.id } },
-          { targetUsers: { isEmpty: true } }
-        ],
-        OR: [
-          { expiresAt: null },
-          { expiresAt: { gt: new Date() } }
+        AND: [
+          {
+            OR: [
+              { targetUsers: { has: session.user.id } },
+              { targetUsers: { isEmpty: true } }
+            ]
+          },
+          {
+            OR: [
+              { expiresAt: null },
+              { expiresAt: { gt: new Date() } }
+            ]
+          }
         ]
       },
       include: {
@@ -96,7 +102,7 @@ export async function PUT(
     }
 
     // Superuser can update all fields
-    const updateData: { isRead?: boolean; title?: string; message?: string; type?: string; priority?: string } = {}
+    const updateData: { isRead?: boolean; title?: string; message?: string; type?: string; priority?: string; targetUsers?: string[]; expiresAt?: Date | null; isActive?: boolean } = {}
     if (isRead !== undefined) updateData.isRead = isRead
     if (title !== undefined) updateData.title = title
     if (message !== undefined) updateData.message = message
@@ -106,7 +112,7 @@ export async function PUT(
     if (expiresAt !== undefined) updateData.expiresAt = expiresAt ? new Date(expiresAt) : null
     if (isActive !== undefined) updateData.isActive = isActive
 
-    const notification = await prisma.notification.update({
+    const notification = await (prisma.notification as unknown as { update: (args: unknown) => Promise<unknown> }).update({
       where: { id },
       data: updateData,
       include: {

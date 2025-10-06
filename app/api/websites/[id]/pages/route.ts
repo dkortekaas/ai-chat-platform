@@ -38,7 +38,7 @@ export async function GET(
     // Verify the assistant belongs to the user
     const assistant = await prisma.chatbot_settings.findFirst({
       where: {
-        id: website.assistantId,
+        id: website.assistantId || undefined,
         userId: session.user.id
       }
     })

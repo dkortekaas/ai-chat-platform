@@ -7,10 +7,6 @@ import { Card } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { 
   ArrowLeft,
-  ExternalLink,
-  CheckCircle,
-  Clock,
-  AlertCircle,
   Settings,
   Play
 } from 'lucide-react'
@@ -155,18 +151,6 @@ export default function WebsiteDetailPage() {
     }
   }, [params.id])
 
-  const getStatusIcon = (status: Website['status']) => {
-    switch (status) {
-      case 'COMPLETED':
-        return <CheckCircle className="w-4 h-4 text-green-600" />
-      case 'PENDING':
-        return <Clock className="w-4 h-4 text-yellow-600" />
-      case 'SYNCING':
-        return <Clock className="w-4 h-4 text-indigo-500" />
-      case 'ERROR':
-        return <AlertCircle className="w-4 h-4 text-red-600" />
-    }
-  }
 
   const getStatusBadge = (status: Website['status']) => {
     switch (status) {

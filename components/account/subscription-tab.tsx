@@ -1,10 +1,10 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
-import { Download, RefreshCw, CreditCard, AlertCircle, CheckCircle } from 'lucide-react'
+import { RefreshCw, CreditCard, AlertCircle, CheckCircle } from 'lucide-react'
 import { SUBSCRIPTION_PLANS } from '@/lib/subscription-plans'
 import { useToast } from '@/hooks/use-toast'
 
@@ -30,6 +30,12 @@ interface SubscriptionData {
       name: string
       price: number
       interval: string
+      limits?: {
+        assistants: number
+        conversationsPerMonth: number
+        documentsPerAssistant: number
+        websitesPerAssistant: number
+      }
     }
   }
 }
@@ -41,11 +47,7 @@ export function SubscriptionTab() {
   const [managing, setManaging] = useState(false)
   const { toast } = useToast()
 
-  useEffect(() => {
-    fetchSubscriptionData()
-  }, [])
-
-  const fetchSubscriptionData = async () => {
+  const fetchSubscriptionData = useCallback(async () => {
     try {
       const response = await fetch('/api/subscriptions')
       if (response.ok) {
@@ -68,7 +70,11 @@ export function SubscriptionTab() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [toast])
+
+  useEffect(() => {
+    fetchSubscriptionData()
+  }, [fetchSubscriptionData])
 
   const handleUpgrade = async (plan: string) => {
     setUpgrading(true)
@@ -209,13 +215,13 @@ export function SubscriptionTab() {
                 <div className="flex justify-between">
                   <span className="text-gray-600">Chatbots:</span>
                   <span className="font-medium">
-                    {user.currentPlan.limits.assistants === -1 ? 'Onbeperkt' : user.currentPlan.limits.assistants}
+                    {user.currentPlan.limits?.assistants === -1 ? 'Onbeperkt' : user.currentPlan.limits?.assistants || 0}
                   </span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-600">Gesprekken/maand:</span>
                   <span className="font-medium">
-                    {user.currentPlan.limits.conversationsPerMonth === -1 ? 'Onbeperkt' : user.currentPlan.limits.conversationsPerMonth}
+                    {user.currentPlan.limits?.conversationsPerMonth === -1 ? 'Onbeperkt' : user.currentPlan.limits?.conversationsPerMonth || 0}
                   </span>
                 </div>
                 {user.subscriptionEndDate && (

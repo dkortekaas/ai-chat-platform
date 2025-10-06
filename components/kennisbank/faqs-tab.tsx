@@ -56,7 +56,7 @@ export function FaqsTab() {
       } else {
         throw new Error('Failed to fetch FAQs')
       }
-    } catch (error) {
+    } catch {
       toast({
         title: 'Error',
         description: 'Failed to load FAQs',
@@ -186,7 +186,7 @@ export function FaqsTab() {
       } else {
         throw new Error('Failed to update FAQ')
       }
-    } catch (error) {
+    } catch {
       toast({
         title: 'Error',
         description: 'Failed to update FAQ',
