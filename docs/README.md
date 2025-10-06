@@ -16,9 +16,9 @@ Een self-hosted chatbot platform waarmee organisaties een AI-gestuurde chatbot k
 
 ### Prerequisites
 
--   Node.js 18+
--   PostgreSQL database (Neon recommended)
--   OpenAI API key
+- Node.js 18+
+- PostgreSQL database (Neon recommended)
+- OpenAI API key
 
 ### Installation
 
@@ -81,21 +81,6 @@ Vector Search: pgvector
 Auth: Auth.js v5
 Deployment: Vercel
 Storage: Vercel Blob
-
-📝 Environment Variables
-env# Database
-DATABASE_URL="postgresql://..."
-DIRECT_URL="postgresql://..."
-
-# Auth
-AUTH_SECRET="your-secret-key"
-AUTH_URL="http://localhost:3000"
-
-# OpenAI
-OPENAI_API_KEY="sk-..."
-
-# Storage
-BLOB_READ_WRITE_TOKEN="vercel_blob_..."
 
 # App
 NEXT_PUBLIC_APP_URL="http://localhost:3000"

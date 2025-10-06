@@ -664,9 +664,7 @@ After running the seed script, you can login with these test accounts:
 
 1. **Ga naar Developers** → **API Keys**
 2. **Kopieer je Secret Key** (begint met `sk_test_` voor test mode)
-   - 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
 3. **Kopieer je Publishable Key** (begint met `pk_test_` voor test mode)
-   - pk_live_51RP99TApPiHZWDZPyKENbLTRxNTBxx2tfJOXORHkPXL47OzKxdzQn6oVIScjwKF3MLqu5ValcaqrkAtd1vVUmJSK00kem6OZTh
 
 ### 4. Webhook Configuratie
 
@@ -680,7 +678,6 @@ After running the seed script, you can login with these test accounts:
    - `invoice.payment_succeeded`
    - `invoice.payment_failed`
 5. **Kopieer de Webhook Secret** (begint met `whsec_`)
-   - whsec_CidTU2XXYJNglJCBtwmOZvO1OGIpbkit
 
 ### 5. OpenAI API Key Configureren
 
