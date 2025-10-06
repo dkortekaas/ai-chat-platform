@@ -12,7 +12,7 @@ export default function LoginPage() {
               <div className="w-3 h-3 bg-yellow-400 rounded-full"></div>
               <div className="w-3 h-3 bg-yellow-400 rounded-full"></div>
             </div>
-            <span className="ml-3 text-2xl font-bold text-purple-800">aivanti</span>
+            <span className="ml-3 text-2xl font-bold text-purple-800">AI Chat</span>
           </div>
           
           {/* Welcome Text */}
@@ -21,7 +21,7 @@ export default function LoginPage() {
               Welcome back!
             </h1>
             <p className="text-lg text-gray-600 leading-relaxed">
-              Access your account to manage your AI assistant, streamline workflows, and enhance customer engagement. Let&apos;s continue <strong>driving your business forward with the power of Aivanti.</strong>
+              Access your account to manage your AI assistant, streamline workflows, and enhance customer engagement. Let&apos;s continue <strong>driving your business forward with the power of AI Chat.</strong>
             </p>
           </div>
           
@@ -73,7 +73,7 @@ export default function LoginPage() {
         
         {/* Terms */}
         <div className="text-sm text-gray-600">
-          By signing in, you agree to AIVANTI&apos;s <span className="text-indigo-500 font-medium cursor-pointer hover:underline">Terms of Service & Privacy Policy</span>
+          By signing in, you agree to AI CHAT&apos;s <span className="text-indigo-500 font-medium cursor-pointer hover:underline">Terms of Service & Privacy Policy</span>
         </div>
       </div>
       

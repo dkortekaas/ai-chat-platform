@@ -12,7 +12,7 @@ export default function ForgotPasswordPage() {
               <div className="w-3 h-3 bg-yellow-400 rounded-full"></div>
               <div className="w-3 h-3 bg-yellow-400 rounded-full"></div>
             </div>
-            <span className="ml-3 text-2xl font-bold text-purple-800">aivanti</span>
+            <span className="ml-3 text-2xl font-bold text-purple-800">AI Chat</span>
           </div>
           
           {/* Welcome Text */}

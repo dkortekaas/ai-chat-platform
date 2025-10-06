@@ -25,9 +25,9 @@ export function WidgetTab({ onChanges }: WidgetTabProps) {
   const [copied, setCopied] = useState(false)
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
 
-  const widgetCode = `<script src='https://bot.eu.aivanti.com/aivanti_bot.js'></script>
+  const widgetCode = `<script src='https://bot.eu.aichat.com/aichat_bot.js'></script>
 <script>
-window.bot = aivantiBot({
+window.bot = aichatBot({
   assistant: '6e60f1f5-dd54-4c50-844a-5de33234b1c5'
 })
 </script>`

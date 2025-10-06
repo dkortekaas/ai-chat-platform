@@ -12,13 +12,13 @@ export default function SignupPage() {
               <div className="w-3 h-3 bg-yellow-400 rounded-full"></div>
               <div className="w-3 h-3 bg-yellow-400 rounded-full"></div>
             </div>
-            <span className="ml-3 text-2xl font-bold text-purple-800">aivanti</span>
+            <span className="ml-3 text-2xl font-bold text-purple-800">AI Chat</span>
           </div>
           
           {/* Welcome Text */}
           <div className="mb-12">
             <h1 className="text-4xl font-bold text-purple-800 mb-6">
-              Join Aivanti today!
+              Join AI Chat today!
             </h1>
             <p className="text-lg text-gray-600 leading-relaxed">
               Create your account and start building powerful AI assistants that will transform your business. Get ready to <strong>unlock the full potential of AI-driven customer engagement.</strong>
@@ -73,7 +73,7 @@ export default function SignupPage() {
         
         {/* Terms */}
         <div className="text-sm text-gray-600">
-          By creating an account, you agree to AIVANTI&apos;s <span className="text-indigo-500 font-medium cursor-pointer hover:underline">Terms of Service & Privacy Policy</span>
+          By creating an account, you agree to AI CHAT&apos;s <span className="text-indigo-500 font-medium cursor-pointer hover:underline">Terms of Service & Privacy Policy</span>
         </div>
       </div>
       
