@@ -5,7 +5,7 @@ import { prisma } from '@/lib/prisma'
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await getServerSession(authOptions)
@@ -13,9 +13,11 @@ export async function GET(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
+    const { id } = await params
+
     const actionButton = await prisma.actionButton.findFirst({
       where: {
-        id: params.id,
+        id,
         assistant: {
           userId: session.user.id
         }
@@ -35,7 +37,7 @@ export async function GET(
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await getServerSession(authOptions)
@@ -46,10 +48,12 @@ export async function PUT(
     const body = await request.json()
     const { buttonText, question, priority, enabled } = body
 
+    const { id } = await params
+
     // Verify the action button belongs to the user
     const existingButton = await prisma.actionButton.findFirst({
       where: {
-        id: params.id,
+        id,
         assistant: {
           userId: session.user.id
         }
@@ -61,7 +65,7 @@ export async function PUT(
     }
 
     const actionButton = await prisma.actionButton.update({
-      where: { id: params.id },
+      where: { id },
       data: {
         ...(buttonText !== undefined && { buttonText }),
         ...(question !== undefined && { question }),
@@ -79,7 +83,7 @@ export async function PUT(
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await getServerSession(authOptions)
@@ -87,10 +91,12 @@ export async function DELETE(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
+    const { id } = await params
+
     // Verify the action button belongs to the user
     const existingButton = await prisma.actionButton.findFirst({
       where: {
-        id: params.id,
+        id,
         assistant: {
           userId: session.user.id
         }
@@ -102,7 +108,7 @@ export async function DELETE(
     }
 
     await prisma.actionButton.delete({
-      where: { id: params.id }
+      where: { id }
     })
 
     return NextResponse.json({ message: 'Action button deleted successfully' })

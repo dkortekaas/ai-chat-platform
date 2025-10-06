@@ -1,14 +1,14 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
+import { useRouter } from 'next/navigation'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Textarea } from '@/components/ui/textarea'
 import { Switch } from '@/components/ui/switch'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { Plus, Save, Trash2 } from 'lucide-react'
+import { Plus, Trash2 } from 'lucide-react'
+import { DeleteConfirmationModal } from '@/components/kennisbank/delete-confirmation-modal'
+import { useAssistant } from '@/contexts/assistant-context'
+import { useToast } from '@/hooks/use-toast'
 
 interface FormsTabProps {
   onChanges: (hasChanges: boolean) => void
@@ -32,106 +32,93 @@ interface FormField {
   options?: string[]
 }
 
-const initialForms: ContactForm[] = [
-  {
-    id: '1',
-    name: 'Contact Form',
-    description: 'Standard contact form for general inquiries',
-    enabled: true,
-    fields: [
-      { id: '1', name: 'Name', type: 'text', required: true, placeholder: 'Your full name' },
-      { id: '2', name: 'Email', type: 'email', required: true, placeholder: 'your@email.com' },
-      { id: '3', name: 'Message', type: 'textarea', required: true, placeholder: 'Your message...' }
-    ]
-  },
-  {
-    id: '2',
-    name: 'Support Request',
-    description: 'Form for technical support requests',
-    enabled: true,
-    fields: [
-      { id: '1', name: 'Name', type: 'text', required: true, placeholder: 'Your full name' },
-      { id: '2', name: 'Email', type: 'email', required: true, placeholder: 'your@email.com' },
-      { id: '3', name: 'Issue Type', type: 'select', required: true, options: ['Technical', 'Billing', 'General'] },
-      { id: '4', name: 'Description', type: 'textarea', required: true, placeholder: 'Describe your issue...' }
-    ]
-  }
-]
+// Loaded from API
 
 export function FormsTab({ onChanges }: FormsTabProps) {
-  const [forms, setForms] = useState<ContactForm[]>(initialForms)
-  const [editingForm, setEditingForm] = useState<ContactForm | null>(null)
-  const [isEditing, setIsEditing] = useState(false)
+  const router = useRouter()
+  const { currentAssistant } = useAssistant()
+  const { toast } = useToast()
+  const [forms, setForms] = useState<ContactForm[]>([])
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
+  const [formToDelete, setFormToDelete] = useState<ContactForm | null>(null)
+  // const [isLoading, setIsLoading] = useState(false)
 
-  const handleToggleForm = (id: string) => {
-    setForms(forms.map(form => 
-      form.id === id 
-        ? { ...form, enabled: !form.enabled }
-        : form
-    ))
-    onChanges(true)
+  const fetchForms = async () => {
+    if (!currentAssistant?.id) return
+    try {
+      // setIsLoading(true)
+      const res = await fetch(`/api/forms?assistantId=${currentAssistant.id}`)
+      if (res.ok) {
+        const data = await res.json()
+        setForms(data)
+      } else {
+        toast({ title: 'Error', description: 'Failed to load forms', variant: 'destructive' })
+      }
+    } catch (e) {
+      console.error('Failed to fetch forms', e)
+      toast({ title: 'Error', description: 'Failed to load forms', variant: 'destructive' })
+    } finally {
+      // setIsLoading(false)
+    }
   }
 
-  const handleDeleteForm = (id: string) => {
-    setForms(forms.filter(form => form.id !== id))
-    onChanges(true)
+  useEffect(() => {
+    fetchForms()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentAssistant?.id])
+
+  const handleToggleForm = async (id: string) => {
+    const target = forms.find(f => f.id === id)
+    if (!target) return
+    const updated = { ...target, enabled: !target.enabled }
+    setForms(forms.map(f => (f.id === id ? updated : f)))
+    try {
+      await fetch(`/api/forms/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ enabled: updated.enabled })
+      })
+      onChanges(true)
+      toast({ title: 'Saved', description: 'Form updated' })
+    } catch (e) {
+      console.error('Failed to toggle form', e)
+      // revert
+      setForms(forms)
+      toast({ title: 'Error', description: 'Failed to update form', variant: 'destructive' })
+    }
+  }
+
+  const handleDeleteForm = (form: ContactForm) => {
+    setFormToDelete(form)
+    setIsDeleteModalOpen(true)
+  }
+
+  const handleConfirmDelete = async () => {
+    if (!formToDelete) return
+    try {
+      await fetch(`/api/forms/${formToDelete.id}`, { method: 'DELETE' })
+      setForms(forms.filter(form => form.id !== formToDelete.id))
+      onChanges(true)
+      toast({ title: 'Deleted', description: 'Form verwijderd' })
+    } catch (e) {
+      console.error('Failed to delete form', e)
+      toast({ title: 'Error', description: 'Verwijderen mislukt', variant: 'destructive' })
+    } finally {
+      setIsDeleteModalOpen(false)
+      setFormToDelete(null)
+    }
+  }
+
+  const handleDeleteModalClose = () => {
+    setIsDeleteModalOpen(false)
+    setFormToDelete(null)
   }
 
   const handleEditForm = (form: ContactForm) => {
-    setEditingForm(form)
-    setIsEditing(true)
+    router.push(`/settings/forms/${form.id}/edit`)
   }
 
-  const handleSaveForm = () => {
-    if (editingForm) {
-      setForms(forms.map(form => 
-        form.id === editingForm.id 
-          ? editingForm
-          : form
-      ))
-    }
-    setIsEditing(false)
-    setEditingForm(null)
-    onChanges(true)
-  }
-
-  const handleAddField = () => {
-    if (editingForm) {
-      const newField: FormField = {
-        id: Date.now().toString(),
-        name: 'New Field',
-        type: 'text',
-        required: false,
-        placeholder: 'Enter value...'
-      }
-      setEditingForm({
-        ...editingForm,
-        fields: [...editingForm.fields, newField]
-      })
-    }
-  }
-
-  const handleRemoveField = (fieldId: string) => {
-    if (editingForm) {
-      setEditingForm({
-        ...editingForm,
-        fields: editingForm.fields.filter(field => field.id !== fieldId)
-      })
-    }
-  }
-
-  const handleUpdateField = (fieldId: string, updates: Partial<FormField>) => {
-    if (editingForm) {
-      setEditingForm({
-        ...editingForm,
-        fields: editingForm.fields.map(field => 
-          field.id === fieldId 
-            ? { ...field, ...updates }
-            : field
-        )
-      })
-    }
-  }
+  // Inline editor handlers removed; editing happens on dedicated pages
 
   return (
     <div className="space-y-6">
@@ -141,16 +128,7 @@ export function FormsTab({ onChanges }: FormsTabProps) {
           <p className="text-sm text-gray-600">Configure contact forms and data collection</p>
         </div>
         <Button 
-          onClick={() => {
-            setEditingForm({
-              id: Date.now().toString(),
-              name: 'New Form',
-              description: '',
-              fields: [],
-              enabled: true
-            })
-            setIsEditing(true)
-          }}
+          onClick={() => router.push('/settings/forms/new')}
           className="bg-indigo-500 hover:bg-indigo-600"
         >
           <Plus className="w-4 h-4 mr-2" />
@@ -184,7 +162,7 @@ export function FormsTab({ onChanges }: FormsTabProps) {
                   <Button
                     variant="outline"
                     size="sm"
-                    onClick={() => handleDeleteForm(form.id)}
+                    onClick={() => handleDeleteForm(form)}
                   >
                     <Trash2 className="w-4 h-4" />
                   </Button>
@@ -211,127 +189,18 @@ export function FormsTab({ onChanges }: FormsTabProps) {
         ))}
       </div>
 
-      {/* Edit Form Dialog */}
-      {isEditing && editingForm && (
-        <Card>
-          <CardHeader>
-            <CardTitle>Edit Form: {editingForm.name}</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="form-name">Form Name</Label>
-                <Input
-                  id="form-name"
-                  value={editingForm.name}
-                  onChange={(e) => setEditingForm({ ...editingForm, name: e.target.value })}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="redirect-url">Redirect URL (optional)</Label>
-                <Input
-                  id="redirect-url"
-                  value={editingForm.redirectUrl || ''}
-                  onChange={(e) => setEditingForm({ ...editingForm, redirectUrl: e.target.value })}
-                  placeholder="https://example.com/thank-you"
-                />
-              </div>
-            </div>
-            
-            <div className="space-y-2">
-              <Label htmlFor="form-description">Description</Label>
-              <Textarea
-                id="form-description"
-                value={editingForm.description}
-                onChange={(e) => setEditingForm({ ...editingForm, description: e.target.value })}
-                placeholder="Describe the purpose of this form"
-              />
-            </div>
+      {/* Editor moved to dedicated pages */}
 
-            <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <h4 className="font-medium">Form Fields</h4>
-                <Button onClick={handleAddField} size="sm">
-                  <Plus className="w-4 h-4 mr-2" />
-                  Add Field
-                </Button>
-              </div>
-              
-              <div className="space-y-3">
-                {editingForm.fields.map((field) => (
-                  <div key={field.id} className="p-4 border rounded-lg space-y-3">
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                      <div className="space-y-2">
-                        <Label>Field Name</Label>
-                        <Input
-                          value={field.name}
-                          onChange={(e) => handleUpdateField(field.id, { name: e.target.value })}
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <Label>Field Type</Label>
-                        <Select
-                          value={field.type}
-                          onValueChange={(value: FormField['type']) => handleUpdateField(field.id, { type: value })}
-                        >
-                          <SelectTrigger>
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="text">Text</SelectItem>
-                            <SelectItem value="email">Email</SelectItem>
-                            <SelectItem value="phone">Phone</SelectItem>
-                            <SelectItem value="textarea">Textarea</SelectItem>
-                            <SelectItem value="select">Select</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </div>
-                      <div className="space-y-2">
-                        <Label>Placeholder</Label>
-                        <Input
-                          value={field.placeholder || ''}
-                          onChange={(e) => handleUpdateField(field.id, { placeholder: e.target.value })}
-                        />
-                      </div>
-                    </div>
-                    
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center space-x-2">
-                        <Switch
-                          checked={field.required}
-                          onCheckedChange={(checked) => handleUpdateField(field.id, { required: checked })}
-                          className="data-[state=checked]:bg-indigo-500"
-                        />
-                        <Label>Required field</Label>
-                      </div>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => handleRemoveField(field.id)}
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </Button>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            <div className="flex justify-end space-x-2">
-              <Button variant="outline" onClick={() => setIsEditing(false)}>
-                Cancel
-              </Button>
-              <Button 
-                onClick={handleSaveForm}
-                className="bg-indigo-500 hover:bg-indigo-600"
-              >
-                <Save className="w-4 h-4 mr-2" />
-                Save Form
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
-      )}
+      {/* Delete Confirmation Modal */}
+      <DeleteConfirmationModal
+        isOpen={isDeleteModalOpen}
+        onClose={handleDeleteModalClose}
+        onConfirm={handleConfirmDelete}
+        title="Delete Form"
+        description="Are you sure you want to delete this form? This action cannot be undone and will remove all form data and configurations."
+        itemName={formToDelete?.name || ''}
+        isLoading={false}
+      />
     </div>
   )
 }

@@ -32,6 +32,7 @@ export function DocumentUpload() {
         description: `${files.length} document(en) geüpload`,
       })
     } catch (error) {
+      console.error('Error uploading documents:', error)
       toast({
         title: 'Error',
         description: 'Upload mislukt',

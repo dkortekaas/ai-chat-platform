@@ -50,6 +50,7 @@ export function SettingsForm({
         description: 'Instellingen opgeslagen',
       })
     } catch (error) {
+      console.error('Error saving settings:', error)
       toast({
         title: 'Error',
         description: 'Opslaan mislukt',

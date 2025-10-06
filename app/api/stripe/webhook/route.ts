@@ -2,10 +2,11 @@ import { NextRequest, NextResponse } from 'next/server';
 import { stripe } from '@/lib/stripe';
 import { prisma } from '@/lib/prisma';
 import { headers } from 'next/headers';
+import type { Stripe } from 'stripe';
 
 export async function POST(req: NextRequest) {
   const body = await req.text();
-  const signature = headers().get('stripe-signature');
+  const signature = (await headers()).get('stripe-signature');
 
   if (!signature) {
     return NextResponse.json({ error: 'No signature' }, { status: 400 });
@@ -27,23 +28,23 @@ export async function POST(req: NextRequest) {
   try {
     switch (event.type) {
       case 'customer.subscription.created':
-        await handleSubscriptionCreated(event.data.object);
+        await handleSubscriptionCreated(event.data.object as Stripe.Subscription);
         break;
       
       case 'customer.subscription.updated':
-        await handleSubscriptionUpdated(event.data.object);
+        await handleSubscriptionUpdated(event.data.object as Stripe.Subscription);
         break;
       
       case 'customer.subscription.deleted':
-        await handleSubscriptionDeleted(event.data.object);
+        await handleSubscriptionDeleted(event.data.object as Stripe.Subscription);
         break;
       
       case 'invoice.payment_succeeded':
-        await handlePaymentSucceeded(event.data.object);
+        await handlePaymentSucceeded(event.data.object as Stripe.Invoice);
         break;
       
       case 'invoice.payment_failed':
-        await handlePaymentFailed(event.data.object);
+        await handlePaymentFailed(event.data.object as Stripe.Invoice);
         break;
       
       default:
@@ -57,8 +58,8 @@ export async function POST(req: NextRequest) {
   }
 }
 
-async function handleSubscriptionCreated(subscription: any) {
-  const customerId = subscription.customer;
+async function handleSubscriptionCreated(subscription: Stripe.Subscription) {
+  const customerId = typeof subscription.customer === 'string' ? subscription.customer : subscription.customer?.id;
   const subscriptionId = subscription.id;
   const priceId = subscription.items.data[0]?.price.id;
   
@@ -89,7 +90,7 @@ async function handleSubscriptionCreated(subscription: any) {
     where: { id: user.id },
     data: {
       subscriptionStatus: 'ACTIVE',
-      subscriptionPlan: plan,
+      subscriptionPlan: plan as 'STARTER' | 'PROFESSIONAL' | 'BUSINESS' | 'ENTERPRISE',
       stripeSubscriptionId: subscriptionId,
       subscriptionStartDate: new Date(subscription.current_period_start * 1000),
       subscriptionEndDate: new Date(subscription.current_period_end * 1000),
@@ -101,8 +102,8 @@ async function handleSubscriptionCreated(subscription: any) {
   console.log(`Subscription created for user ${user.id}: ${plan}`);
 }
 
-async function handleSubscriptionUpdated(subscription: any) {
-  const customerId = subscription.customer;
+async function handleSubscriptionUpdated(subscription: Stripe.Subscription) {
+  const customerId = typeof subscription.customer === 'string' ? subscription.customer : subscription.customer?.id;
   const subscriptionId = subscription.id;
   
   const user = await prisma.user.findUnique({
@@ -114,7 +115,7 @@ async function handleSubscriptionUpdated(subscription: any) {
     return;
   }
 
-  const updateData: any = {
+  const updateData: { subscriptionEndDate: Date; subscriptionStatus?: string; subscriptionCancelAt?: Date; subscriptionCanceled?: boolean } = {
     subscriptionEndDate: new Date(subscription.current_period_end * 1000),
   };
 
@@ -123,7 +124,7 @@ async function handleSubscriptionUpdated(subscription: any) {
     updateData.subscriptionCancelAt = new Date(subscription.current_period_end * 1000);
     updateData.subscriptionCanceled = true;
   } else {
-    updateData.subscriptionCancelAt = null;
+    updateData.subscriptionCancelAt = undefined;
     updateData.subscriptionCanceled = false;
   }
 
@@ -160,8 +161,8 @@ async function handleSubscriptionUpdated(subscription: any) {
   console.log(`Subscription updated for user ${user.id}: ${subscription.status}`);
 }
 
-async function handleSubscriptionDeleted(subscription: any) {
-  const customerId = subscription.customer;
+async function handleSubscriptionDeleted(subscription: Stripe.Subscription) {
+  const customerId = typeof subscription.customer === 'string' ? subscription.customer : subscription.customer?.id;
   
   const user = await prisma.user.findUnique({
     where: { stripeCustomerId: customerId }
@@ -184,8 +185,8 @@ async function handleSubscriptionDeleted(subscription: any) {
   console.log(`Subscription deleted for user ${user.id}`);
 }
 
-async function handlePaymentSucceeded(invoice: any) {
-  const customerId = invoice.customer;
+async function handlePaymentSucceeded(invoice: Stripe.Invoice) {
+  const customerId = typeof invoice.customer === 'string' ? invoice.customer : invoice.customer?.id;
   
   const user = await prisma.user.findUnique({
     where: { stripeCustomerId: customerId }
@@ -209,8 +210,8 @@ async function handlePaymentSucceeded(invoice: any) {
   console.log(`Payment succeeded for user ${user.id}`);
 }
 
-async function handlePaymentFailed(invoice: any) {
-  const customerId = invoice.customer;
+async function handlePaymentFailed(invoice: Stripe.Invoice) {
+  const customerId = typeof invoice.customer === 'string' ? invoice.customer : invoice.customer?.id;
   
   const user = await prisma.user.findUnique({
     where: { stripeCustomerId: customerId }

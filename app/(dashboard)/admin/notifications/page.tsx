@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -29,10 +29,7 @@ import {
   Edit, 
   Trash2, 
   Loader2, 
-  Eye, 
-  EyeOff,
-  Calendar,
-  Users
+  EyeOff
 } from 'lucide-react'
 import { useToast } from '@/hooks/use-toast'
 import { useSession } from 'next-auth/react'
@@ -88,8 +85,8 @@ export default function AdminNotificationsPage() {
   const [formData, setFormData] = useState({
     title: '',
     message: '',
-    type: 'INFO' as const,
-    priority: 'MEDIUM' as const,
+    type: 'INFO' as 'INFO' | 'WARNING' | 'ERROR' | 'SUCCESS' | 'MAINTENANCE',
+    priority: 'MEDIUM' as 'LOW' | 'MEDIUM' | 'HIGH' | 'URGENT',
     isActive: true,
     targetUsers: [] as string[],
     expiresAt: ''
@@ -99,15 +96,7 @@ export default function AdminNotificationsPage() {
   const { data: session } = useSession()
   const router = useRouter()
 
-  useEffect(() => {
-    // Check if user is superuser
-    if (session?.user?.role !== 'SUPERUSER') {
-      router.push('/dashboard')
-      return
-    }
-    
-    fetchNotifications()
-  }, [session, router])
+
 
   const fetchNotifications = async () => {
     try {
@@ -277,6 +266,16 @@ export default function AdminNotificationsPage() {
       })
     }
   }
+
+  useEffect(() => {
+    // Check if user is superuser
+    if (session?.user?.role !== 'SUPERUSER') {
+      router.push('/dashboard')
+      return
+    }
+    
+    fetchNotifications()
+  }, [session, router, fetchNotifications])
 
   if (isLoading) {
     return (
@@ -454,7 +453,7 @@ export default function AdminNotificationsPage() {
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="type">Type</Label>
-                <Select value={formData.type} onValueChange={(value: any) => setFormData({ ...formData, type: value })}>
+                <Select value={formData.type} onValueChange={(value: string) => setFormData({ ...formData, type: value as 'INFO' | 'WARNING' | 'ERROR' | 'SUCCESS' | 'MAINTENANCE' })}>
                   <SelectTrigger>
                     <SelectValue />
                   </SelectTrigger>
@@ -470,7 +469,7 @@ export default function AdminNotificationsPage() {
               
               <div className="space-y-2">
                 <Label htmlFor="priority">Priority</Label>
-                <Select value={formData.priority} onValueChange={(value: any) => setFormData({ ...formData, priority: value })}>
+                <Select value={formData.priority} onValueChange={(value: string) => setFormData({ ...formData, priority: value as 'LOW' | 'MEDIUM' | 'HIGH' | 'URGENT' })}>
                   <SelectTrigger>
                     <SelectValue />
                   </SelectTrigger>

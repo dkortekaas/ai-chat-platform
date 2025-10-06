@@ -25,6 +25,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { WebsiteForm } from './website-form'
+import { DeleteConfirmationModal } from './delete-confirmation-modal'
 import { useToast } from '@/hooks/use-toast'
 import { useAssistant } from '@/contexts/assistant-context'
 
@@ -34,6 +35,7 @@ interface Website {
   name?: string
   description?: string
   pageCount: number
+  pages: number
   syncSpeed?: number
   syncInterval: string
   lastSync?: string
@@ -52,14 +54,10 @@ export function WebsitesTab() {
   const [isLoading, setIsLoading] = useState(true)
   const [isFormOpen, setIsFormOpen] = useState(false)
   const [editingWebsite, setEditingWebsite] = useState<Website | null>(null)
+  const [isDeleteOpen, setIsDeleteOpen] = useState(false)
+  const [websiteToDelete, setWebsiteToDelete] = useState<Website | null>(null)
+  const [isDeleting, setIsDeleting] = useState(false)
   const { toast } = useToast()
-
-  // Fetch websites on component mount and when assistant changes
-  useEffect(() => {
-    if (currentAssistant) {
-      fetchWebsites()
-    }
-  }, [currentAssistant])
 
   const fetchWebsites = async () => {
     if (!currentAssistant) return
@@ -83,6 +81,13 @@ export function WebsitesTab() {
     }
   }
 
+  // Fetch websites on component mount and when assistant changes
+  useEffect(() => {
+    if (currentAssistant) {
+      fetchWebsites()
+    }
+  }, [currentAssistant])
+
   const handleAddWebsite = () => {
     setEditingWebsite(null)
     setIsFormOpen(true)
@@ -92,13 +97,16 @@ export function WebsitesTab() {
     router.push(`/kennisbank/websites/${website.id}`)
   }
 
-  const handleDeleteWebsite = async (website: Website) => {
-    if (!confirm(`Are you sure you want to delete "${website.url}"?`)) {
-      return
-    }
+  const handleDeleteWebsite = (website: Website) => {
+    setWebsiteToDelete(website)
+    setIsDeleteOpen(true)
+  }
 
+  const confirmDeleteWebsite = async () => {
+    if (!websiteToDelete) return
+    setIsDeleting(true)
     try {
-      const response = await fetch(`/api/websites/${website.id}`, {
+      const response = await fetch(`/api/websites/${websiteToDelete.id}`, {
         method: 'DELETE',
       })
 
@@ -107,6 +115,8 @@ export function WebsitesTab() {
           title: 'Website deleted',
           description: 'The website has been deleted successfully.',
         })
+        setIsDeleteOpen(false)
+        setWebsiteToDelete(null)
         fetchWebsites()
       } else {
         const error = await response.json()
@@ -118,6 +128,8 @@ export function WebsitesTab() {
         description: error instanceof Error ? error.message : 'Failed to delete website',
         variant: 'destructive',
       })
+    } finally {
+      setIsDeleting(false)
     }
   }
 
@@ -284,7 +296,7 @@ export function WebsitesTab() {
               ) : websites.length === 0 ? (
                 <tr>
                   <td colSpan={7} className="px-6 py-8 text-center text-gray-500">
-                    No websites added yet. Click "Add Website" to get started.
+                    No websites added yet. Click &quot;Add Website&quot; to get started.
                   </td>
                 </tr>
               ) : (
@@ -365,6 +377,21 @@ export function WebsitesTab() {
         onClose={handleFormClose}
         onSuccess={handleFormSuccess}
         website={editingWebsite}
+      />
+
+      <DeleteConfirmationModal
+        isOpen={isDeleteOpen}
+        onClose={() => {
+          if (!isDeleting) {
+            setIsDeleteOpen(false)
+            setWebsiteToDelete(null)
+          }
+        }}
+        onConfirm={confirmDeleteWebsite}
+        title="Delete website?"
+        description="This will remove the website URL and its associated scraped data from this assistant. This action cannot be undone."
+        itemName={websiteToDelete?.url || ''}
+        isLoading={isDeleting}
       />
     </div>
   )

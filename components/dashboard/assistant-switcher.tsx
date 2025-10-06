@@ -25,13 +25,13 @@ export function AssistantSwitcher() {
   const [isOpen, setIsOpen] = useState(false)
   const router = useRouter()
 
-  const handleAssistantSelect = (assistant: any) => {
+  const handleAssistantSelect = (assistant: { id: string; name: string; primaryColor: string }) => {
     setCurrentAssistant(assistant)
     setIsOpen(false)
   }
 
   const handleCreateNew = () => {
-    router.push('/assistants')
+    router.push('/assistants/new')
     setIsOpen(false)
   }
 

@@ -14,7 +14,7 @@ export async function GET(
 ) {
   try {
     const session = await getServerSession(authOptions)
-    if (!session?.user?.email) {
+    if (!session?.user?.id) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
@@ -28,6 +28,11 @@ export async function GET(
         { error: 'File not found' },
         { status: 404 }
       )
+    }
+
+    // Enforce ownership: file must belong to current user
+    if (file.userId && file.userId !== session.user.id) {
+      return NextResponse.json({ error: 'Not found' }, { status: 404 })
     }
 
     return NextResponse.json(file)
@@ -47,7 +52,7 @@ export async function PUT(
 ) {
   try {
     const session = await getServerSession(authOptions)
-    if (!session?.user?.email) {
+    if (!session?.user?.id) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
@@ -65,6 +70,11 @@ export async function PUT(
         { error: 'File not found' },
         { status: 404 }
       )
+    }
+
+    // Enforce ownership
+    if (existingFile.userId && existingFile.userId !== session.user.id) {
+      return NextResponse.json({ error: 'Not found' }, { status: 404 })
     }
 
     const file = await prisma.knowledgeFile.update({
@@ -92,7 +102,7 @@ export async function DELETE(
 ) {
   try {
     const session = await getServerSession(authOptions)
-    if (!session?.user?.email) {
+    if (!session?.user?.id) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
@@ -107,6 +117,11 @@ export async function DELETE(
         { error: 'File not found' },
         { status: 404 }
       )
+    }
+
+    // Enforce ownership
+    if (existingFile.userId && existingFile.userId !== session.user.id) {
+      return NextResponse.json({ error: 'Not found' }, { status: 404 })
     }
 
     // Delete file from filesystem

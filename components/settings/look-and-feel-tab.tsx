@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
+import SaveButton from '@/components/ui/save-button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
@@ -153,14 +154,7 @@ export function LookAndFeelTab({ onChanges }: LookAndFeelTabProps) {
             </div>
           </div>
           
-          <Button 
-            onClick={() => handleSave('font')}
-            className="bg-indigo-500 hover:bg-indigo-600"
-            disabled={isLoading}
-          >
-            <Save className="w-4 h-4 mr-2" />
-            {isLoading ? 'Saving...' : 'Save'}
-          </Button>
+          <SaveButton onClick={() => handleSave('font')} isLoading={isLoading} />
         </CardContent>
       </Card>
 
@@ -202,14 +196,7 @@ export function LookAndFeelTab({ onChanges }: LookAndFeelTabProps) {
               />
             </div>
           </div>
-          <Button 
-            onClick={() => handleSave('name-subtitle')}
-            className="bg-indigo-500 hover:bg-indigo-600"
-            disabled={isLoading}
-          >
-            <Save className="w-4 h-4 mr-2" />
-            {isLoading ? 'Saving...' : 'Save'}
-          </Button>
+          <SaveButton onClick={() => handleSave('name-subtitle')} isLoading={isLoading} />
         </CardContent>
       </Card>
 
@@ -246,14 +233,7 @@ export function LookAndFeelTab({ onChanges }: LookAndFeelTabProps) {
               ))}
             </div>
           </div>
-          <Button 
-            onClick={() => handleSave('avatar')}
-            className="bg-indigo-500 hover:bg-indigo-600"
-            disabled={isLoading}
-          >
-            <Save className="w-4 h-4 mr-2" />
-            {isLoading ? 'Saving...' : 'Save'}
-          </Button>
+          <SaveButton onClick={() => handleSave('avatar')} isLoading={isLoading} />
         </CardContent>
       </Card>
       </div>

@@ -10,6 +10,7 @@ export function ForgotPasswordForm() {
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
+  const [devResetLink, setDevResetLink] = useState('')
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -18,17 +19,29 @@ export function ForgotPasswordForm() {
     setIsLoading(true)
     
     try {
-      // Simulate API call - replace with actual implementation
-      await new Promise(resolve => setTimeout(resolve, 2000))
-      
-      // For demo purposes, always show success
-      setSuccess('Password reset link sent! Check your email for instructions.')
-      
-      // Reset form
+      const res = await fetch('/api/auth/forgot-password', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email })
+      })
+      const data = await res.json()
+      if (!res.ok) {
+        throw new Error(data.error || 'Kon resetlink niet verzenden')
+      }
+
+      setSuccess('Als het e-mailadres bestaat, is er een resetlink verzonden.')
+      if (data.resetLink) {
+        setDevResetLink(data.resetLink as string)
+      } else {
+        setDevResetLink('')
+      }
+      if (data.devInfo === 'userNotFound') {
+        setError('Geen account gevonden voor dit e-mailadres (development hint).')
+      }
       setEmail('')
       
-    } catch (error) {
-      setError('Failed to send reset link. Please try again.')
+    } catch {
+      setError('Verzenden mislukt. Probeer het opnieuw.')
     } finally {
       setIsLoading(false)
     }
@@ -51,6 +64,15 @@ export function ForgotPasswordForm() {
       {success && (
         <div className="mb-6 p-4 text-sm text-green-600 bg-green-50 border border-green-200 rounded-lg">
           {success}
+        </div>
+      )}
+
+      {devResetLink && (
+        <div className="mb-6 p-4 text-sm text-blue-700 bg-blue-50 border border-blue-200 rounded-lg">
+          <div className="font-medium mb-1">Development link</div>
+          <a href={devResetLink} className="underline" target="_blank" rel="noreferrer">
+            Open reset link
+          </a>
         </div>
       )}
       
@@ -94,7 +116,7 @@ export function ForgotPasswordForm() {
       {/* Additional help */}
       <div className="mt-4 text-center">
         <p className="text-sm text-gray-500">
-          Didn't receive the email? Check your spam folder or{' '}
+          Didn&apos;t receive the email? Check your spam folder or{' '}
           <Link href="#" className="font-medium text-indigo-500 hover:text-purple-500">
             try again
           </Link>

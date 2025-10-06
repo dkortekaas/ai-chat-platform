@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -23,7 +23,6 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { 
-  Plus, 
   Edit, 
   Trash2, 
   Loader2, 
@@ -33,6 +32,7 @@ import {
   User,
   Crown
 } from 'lucide-react'
+import SaveButton from '@/components/ui/save-button'
 import { useToast } from '@/hooks/use-toast'
 import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
@@ -79,16 +79,6 @@ export default function AdminUsersPage() {
   const { data: session } = useSession()
   const router = useRouter()
 
-  useEffect(() => {
-    // Check if user is superuser
-    if (session?.user?.role !== 'SUPERUSER') {
-      router.push('/dashboard')
-      return
-    }
-    
-    fetchUsers()
-  }, [session, router])
-
   const fetchUsers = async () => {
     try {
       setIsLoading(true)
@@ -114,6 +104,8 @@ export default function AdminUsersPage() {
       setIsLoading(false)
     }
   }
+
+ 
 
   const handleAddUser = () => {
     setEditingUser(null)
@@ -233,6 +225,16 @@ export default function AdminUsersPage() {
       })
     }
   }
+
+  useEffect(() => {
+    // Check if user is superuser
+    if (session?.user?.role !== 'SUPERUSER') {
+      router.push('/dashboard')
+      return
+    }
+    
+    fetchUsers()
+  }, [session, router, fetchUsers])
 
   if (isLoading) {
     return (
@@ -400,7 +402,7 @@ export default function AdminUsersPage() {
             
             <div className="space-y-2">
               <Label htmlFor="role">Role</Label>
-              <Select value={formData.role} onValueChange={(value: any) => setFormData({ ...formData, role: value })}>
+              <Select value={formData.role} onValueChange={(value: string) => setFormData({ ...formData, role: value as 'SUPERUSER' | 'ADMIN' | 'USER' })}>
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
@@ -421,20 +423,13 @@ export default function AdminUsersPage() {
             >
               Cancel
             </Button>
-            <Button 
+            <SaveButton 
               onClick={handleSaveUser}
-              className="bg-indigo-500 hover:bg-indigo-600"
-              disabled={isSaving || !formData.name.trim() || !formData.email.trim() || (!editingUser && !formData.password.trim())}
+              isLoading={isSaving}
+              disabled={!formData.name.trim() || !formData.email.trim() || (!editingUser && !formData.password.trim())}
             >
-              {isSaving ? (
-                <>
-                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                  Saving...
-                </>
-              ) : (
-                editingUser ? 'Update' : 'Create'
-              )}
-            </Button>
+              {editingUser ? 'Update' : 'Create'}
+            </SaveButton>
           </DialogFooter>
         </DialogContent>
       </Dialog>

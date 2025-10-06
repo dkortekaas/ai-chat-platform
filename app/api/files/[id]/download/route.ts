@@ -14,7 +14,7 @@ export async function GET(
 ) {
   try {
     const session = await getServerSession(authOptions)
-    if (!session?.user?.email) {
+    if (!session?.user?.id) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
@@ -30,6 +30,11 @@ export async function GET(
       )
     }
 
+    // Enforce ownership
+    if ((file as { userId?: string }).userId && (file as { userId?: string }).userId !== session.user.id) {
+      return NextResponse.json({ error: 'Not found' }, { status: 404 })
+    }
+
     // Check if file exists on filesystem
     if (!existsSync(file.filePath)) {
       return NextResponse.json(
@@ -42,7 +47,7 @@ export async function GET(
     const fileBuffer = await readFile(file.filePath)
 
     // Return file with appropriate headers
-    return new NextResponse(fileBuffer, {
+    return new NextResponse(new Uint8Array(fileBuffer), {
       headers: {
         'Content-Type': file.mimeType,
         'Content-Disposition': `attachment; filename="${file.originalName}"`,

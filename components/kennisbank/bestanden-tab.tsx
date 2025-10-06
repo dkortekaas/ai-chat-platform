@@ -28,6 +28,7 @@ import { FileUploadModal } from './file-upload-modal'
 import { FileEditForm } from './file-edit-form'
 import { DeleteConfirmationModal } from './delete-confirmation-modal'
 import { useToast } from '@/hooks/use-toast'
+import { useAssistant } from '@/contexts/assistant-context'
 
 interface KnowledgeFile {
   id: string
@@ -55,15 +56,16 @@ export function BestandenTab() {
   const [fileToDelete, setFileToDelete] = useState<KnowledgeFile | null>(null)
   const [isDeleting, setIsDeleting] = useState(false)
   const { toast } = useToast()
-
-  // Fetch files on component mount
-  useEffect(() => {
-    fetchFiles()
-  }, [])
+  const { currentAssistant } = useAssistant()
 
   const fetchFiles = async () => {
     try {
-      const response = await fetch('/api/files')
+      if (!currentAssistant?.id) {
+        setFiles([])
+        setIsLoading(false)
+        return
+      }
+      const response = await fetch(`/api/files?assistantId=${encodeURIComponent(currentAssistant.id)}`)
       if (response.ok) {
         const data = await response.json()
         setFiles(data)
@@ -71,6 +73,7 @@ export function BestandenTab() {
         throw new Error('Failed to fetch files')
       }
     } catch (error) {
+      console.error('Error fetching files:', error)
       toast({
         title: 'Error',
         description: 'Failed to load files',
@@ -80,6 +83,11 @@ export function BestandenTab() {
       setIsLoading(false)
     }
   }
+
+  // Fetch files on component mount
+  useEffect(() => {
+    fetchFiles()
+  }, [currentAssistant?.id])
 
   const handleUploadFile = () => {
     setIsUploadModalOpen(true)
@@ -121,6 +129,7 @@ export function BestandenTab() {
         throw new Error(error.error || 'Failed to delete file')
       }
     } catch (error) {
+      console.error('Error downloading file:', error)
       toast({
         title: 'Error',
         description: error instanceof Error ? error.message : 'Failed to delete file',
@@ -179,6 +188,7 @@ export function BestandenTab() {
         throw new Error('Failed to update file')
       }
     } catch (error) {
+      console.error('Error updating file:', error)
       toast({
         title: 'Error',
         description: 'Failed to update file',
@@ -261,7 +271,7 @@ export function BestandenTab() {
         <div>
           <h2 className="text-lg font-semibold text-gray-900">Bestanden</h2>
           <p className="text-sm text-gray-500">
-            Upload and manage documents to enhance the assistant's knowledge base.
+            Upload and manage documents to enhance the assistant&apos;s knowledge base.
           </p>
         </div>
         <div className="flex gap-2">
@@ -316,7 +326,7 @@ export function BestandenTab() {
               ) : files.length === 0 ? (
                 <tr>
                   <td colSpan={6} className="px-6 py-8 text-center text-gray-500">
-                    No files uploaded yet. Click "Upload" to get started.
+                    No files uploaded yet. Click &quot;Upload&quot; to get started.
                   </td>
                 </tr>
               ) : (
@@ -394,6 +404,7 @@ export function BestandenTab() {
         isOpen={isUploadModalOpen}
         onClose={handleUploadModalClose}
         onSuccess={handleUploadSuccess}
+        assistantId={currentAssistant?.id}
       />
 
       {/* File Edit Modal */}

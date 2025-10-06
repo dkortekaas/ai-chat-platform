@@ -35,6 +35,7 @@ export function LoginForm() {
         router.refresh()
       }
     } catch (error) {
+      console.error('Error logging in:', error)
       setError('Er is een fout opgetreden bij het inloggen. Probeer het opnieuw.')
     } finally {
       setIsLoading(false)
@@ -145,7 +146,7 @@ export function LoginForm() {
       {/* Sign up link */}
       <div className="mt-6 text-center">
         <p className="text-sm text-gray-600">
-          Don't have an account yet?{' '}
+          Don&apos;t have an account yet?{' '}
           <Link href="/signup" className="font-medium text-indigo-500 hover:text-purple-500">
             Sign up
           </Link>

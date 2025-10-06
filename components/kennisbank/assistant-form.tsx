@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { Button } from '@/components/ui/button'
+import SaveButton from '@/components/ui/save-button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
@@ -392,9 +393,9 @@ export function AssistantForm({ isOpen, onClose, onSuccess, assistant }: Assista
                 <Button type="button" variant="outline" onClick={onClose}>
                   Cancel
                 </Button>
-                <Button type="submit" disabled={isSubmitting} className="bg-indigo-500 hover:bg-indigo-600">
-                  {isSubmitting ? 'Saving...' : (assistant ? 'Update Assistant' : 'Create Assistant')}
-                </Button>
+                <SaveButton type="submit" isLoading={isSubmitting}>
+                  {assistant ? 'Update Assistant' : 'Create Assistant'}
+                </SaveButton>
               </div>
             </form>
           </div>

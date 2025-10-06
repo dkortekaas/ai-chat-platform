@@ -26,7 +26,7 @@ interface Document {
   createdAt: string
 }
 
-const fetchDocuments = async (params: any) => {
+const fetchDocuments = async (params: { page?: number; limit?: number; search?: string }) => {
   // Mock implementation - replace with actual API call
   return {
     data: [],

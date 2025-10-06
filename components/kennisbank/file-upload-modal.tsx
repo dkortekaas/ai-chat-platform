@@ -2,7 +2,6 @@
 
 import { useState, useRef } from 'react'
 import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import {
@@ -20,9 +19,10 @@ interface FileUploadModalProps {
   isOpen: boolean
   onClose: () => void
   onSuccess: () => void
+  assistantId?: string
 }
 
-export function FileUploadModal({ isOpen, onClose, onSuccess }: FileUploadModalProps) {
+export function FileUploadModal({ isOpen, onClose, onSuccess, assistantId }: FileUploadModalProps) {
   const [isLoading, setIsLoading] = useState(false)
   const [selectedFile, setSelectedFile] = useState<File | null>(null)
   const [description, setDescription] = useState('')
@@ -102,6 +102,9 @@ export function FileUploadModal({ isOpen, onClose, onSuccess }: FileUploadModalP
       formData.append('file', selectedFile)
       if (description.trim()) {
         formData.append('description', description.trim())
+      }
+      if (assistantId) {
+        formData.append('assistantId', assistantId)
       }
 
       const response = await fetch('/api/files', {

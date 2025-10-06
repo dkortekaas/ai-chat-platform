@@ -1,64 +1,44 @@
 'use client'
 
+import { useEffect, useState } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import { Bot, User, Clock } from 'lucide-react'
+import { LoadingSpinner } from '@/components/shared/loading-spinner'
 
-interface Message {
+interface Conversation {
   id: string
-  content: string
-  sender: 'user' | 'bot'
-  timestamp: string
+  question: string
+  answer: string
+  createdAt: string
 }
 
 interface ConversationDetailProps {
   conversationId: string
 }
 
-// Mock data - replace with real data
-const mockMessages: Message[] = [
-  {
-    id: '1',
-    content: 'Hallo, ik heb een vraag over jullie product.',
-    sender: 'user',
-    timestamp: '2024-01-15T14:30:00Z'
-  },
-  {
-    id: '2',
-    content: 'Hallo! Ik help je graag verder. Wat zou je willen weten over ons product?',
-    sender: 'bot',
-    timestamp: '2024-01-15T14:30:15Z'
-  },
-  {
-    id: '3',
-    content: 'Ik wil graag weten wat de technische specificaties zijn.',
-    sender: 'user',
-    timestamp: '2024-01-15T14:31:00Z'
-  },
-  {
-    id: '4',
-    content: 'Natuurlijk! Hier zijn de belangrijkste technische specificaties van ons product:\n\n• Processor: Intel Core i7\n• RAM: 16GB DDR4\n• Opslag: 512GB SSD\n• Scherm: 15.6" Full HD\n\nHeb je nog andere vragen?',
-    sender: 'bot',
-    timestamp: '2024-01-15T14:31:30Z'
-  },
-  {
-    id: '5',
-    content: 'Perfect, dat is precies wat ik zocht. Dank je wel!',
-    sender: 'user',
-    timestamp: '2024-01-15T14:32:00Z'
-  },
-  {
-    id: '6',
-    content: 'Graag gedaan! Is er nog iets anders waarmee ik je kan helpen?',
-    sender: 'bot',
-    timestamp: '2024-01-15T14:32:15Z'
-  }
-]
-
 export function ConversationDetail({ conversationId }: ConversationDetailProps) {
-  // TODO: Fetch conversation by ID
-  const messages = mockMessages
+  const [conversation, setConversation] = useState<Conversation | null>(null)
+  const [isLoading, setIsLoading] = useState(true)
+
+  useEffect(() => {
+    const fetchConversation = async () => {
+      setIsLoading(true)
+      try {
+        const res = await fetch(`/api/conversations/${conversationId}`)
+        if (res.ok) {
+          const data: Conversation = await res.json()
+          setConversation(data)
+        } else {
+          setConversation(null)
+        }
+      } finally {
+        setIsLoading(false)
+      }
+    }
+    fetchConversation()
+  }, [conversationId])
 
   const formatTime = (dateString: string) => {
     const date = new Date(dateString)
@@ -73,50 +53,47 @@ export function ConversationDetail({ conversationId }: ConversationDetailProps) 
       <CardHeader>
         <CardTitle className="flex items-center space-x-2">
           <span>Gesprek Details</span>
-          <Badge variant="secondary">
-            {messages.length} berichten
-          </Badge>
+          <Badge variant="secondary">1 gesprek</Badge>
         </CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="space-y-4 max-h-96 overflow-y-auto">
-          {messages.map((message) => (
-            <div
-              key={message.id}
-              className={`flex space-x-3 ${
-                message.sender === 'user' ? 'flex-row-reverse space-x-reverse' : ''
-              }`}
-            >
+        {isLoading ? (
+          <div className="flex justify-center py-8"><LoadingSpinner /></div>
+        ) : conversation ? (
+          <div className="space-y-4 max-h-96 overflow-y-auto">
+            <div className="flex space-x-3 flex-row-reverse space-x-reverse">
               <Avatar className="h-8 w-8">
                 <AvatarFallback>
-                  {message.sender === 'user' ? (
-                    <User className="h-4 w-4" />
-                  ) : (
-                    <Bot className="h-4 w-4" />
-                  )}
+                  <User className="h-4 w-4" />
                 </AvatarFallback>
               </Avatar>
-              
-              <div className={`flex-1 max-w-xs lg:max-w-md ${
-                message.sender === 'user' ? 'text-right' : ''
-              }`}>
-                <div
-                  className={`rounded-lg px-3 py-2 text-sm ${
-                    message.sender === 'user'
-                      ? 'bg-indigo-500 text-white'
-                      : 'bg-gray-100 text-gray-900'
-                  }`}
-                >
-                  <p className="whitespace-pre-wrap">{message.content}</p>
+              <div className="flex-1 max-w-xs lg:max-w-md text-right">
+                <div className="rounded-lg px-3 py-2 text-sm bg-indigo-500 text-white">
+                  <p className="whitespace-pre-wrap">{conversation.question}</p>
                 </div>
-                <div className="flex items-center space-x-1 mt-1 text-xs text-gray-500">
+                <div className="flex items-center space-x-1 mt-1 text-xs text-gray-500 justify-end">
                   <Clock className="h-3 w-3" />
-                  <span>{formatTime(message.timestamp)}</span>
+                  <span>{formatTime(conversation.createdAt)}</span>
                 </div>
               </div>
             </div>
-          ))}
-        </div>
+
+            <div className="flex space-x-3">
+              <Avatar className="h-8 w-8">
+                <AvatarFallback>
+                  <Bot className="h-4 w-4" />
+                </AvatarFallback>
+              </Avatar>
+              <div className="flex-1 max-w-xs lg:max-w-md">
+                <div className="rounded-lg px-3 py-2 text-sm bg-gray-100 text-gray-900">
+                  <p className="whitespace-pre-wrap">{conversation.answer}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        ) : (
+          <div className="text-center text-gray-500">Conversation not found</div>
+        )}
       </CardContent>
     </Card>
   )

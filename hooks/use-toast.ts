@@ -1,21 +1,31 @@
-import { useState } from 'react'
+import { useEffect } from 'react'
 
-interface Toast {
+export interface ToastOptions {
   title: string
   description?: string
   variant?: 'default' | 'destructive'
 }
 
+type ToastListener = (toast: ToastOptions) => void
+
+const listeners = new Set<ToastListener>()
+
+export function notifyToast(toast: ToastOptions) {
+  for (const listener of Array.from(listeners)) listener(toast)
+}
+
 export function useToast() {
-  const [toasts, setToasts] = useState<Toast[]>([])
-
-  const toast = (toast: Toast) => {
-    setToasts(prev => [...prev, toast])
-    // Auto remove after 3 seconds
-    setTimeout(() => {
-      setToasts(prev => prev.slice(1))
-    }, 3000)
+  return {
+    toast: notifyToast,
   }
+}
 
-  return { toast, toasts }
+// Hook for the Toaster component to subscribe to toast events
+export function useToastSubscription(onToast: ToastListener) {
+  useEffect(() => {
+    listeners.add(onToast)
+    return () => {
+      listeners.delete(onToast)
+    }
+  }, [onToast])
 }

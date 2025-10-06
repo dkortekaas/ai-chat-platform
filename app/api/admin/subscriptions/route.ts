@@ -37,7 +37,7 @@ export async function GET() {
         createdAt: true,
         _count: {
           select: {
-            assistants: true
+            chatbot_settings: true
           }
         }
       },

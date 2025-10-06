@@ -1,8 +1,10 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { useCallback } from 'react'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
+import SaveButton from '@/components/ui/save-button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Switch } from '@/components/ui/switch'
@@ -32,6 +34,9 @@ export function ActionButtonsTab({ onChanges }: ActionButtonsTabProps) {
   const [editingButton, setEditingButton] = useState<ActionButton | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [isSaving, setIsSaving] = useState(false)
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
+  const [deletingId, setDeletingId] = useState<string | null>(null)
+  const [isDeleting, setIsDeleting] = useState(false)
   const [formData, setFormData] = useState({
     buttonText: '',
     question: '',
@@ -43,13 +48,8 @@ export function ActionButtonsTab({ onChanges }: ActionButtonsTabProps) {
   const { toast } = useToast()
 
   // Fetch action buttons on component mount
-  useEffect(() => {
-    if (currentAssistant?.id) {
-      fetchActionButtons()
-    }
-  }, [currentAssistant?.id])
 
-  const fetchActionButtons = async () => {
+  const fetchActionButtons = useCallback(async () => {
     if (!currentAssistant?.id) return
     
     try {
@@ -75,7 +75,13 @@ export function ActionButtonsTab({ onChanges }: ActionButtonsTabProps) {
     } finally {
       setIsLoading(false)
     }
-  }
+  }, [currentAssistant?.id, toast])
+
+  useEffect(() => {
+    if (currentAssistant?.id) {
+      fetchActionButtons()
+    }
+  }, [currentAssistant?.id, fetchActionButtons])
 
   const handleAddButton = () => {
     setEditingButton(null)
@@ -149,11 +155,16 @@ export function ActionButtonsTab({ onChanges }: ActionButtonsTabProps) {
     }
   }
 
-  const handleDeleteButton = async (id: string) => {
-    if (!confirm('Are you sure you want to delete this action button?')) return
-    
+  const handleDeleteButton = (id: string) => {
+    setDeletingId(id)
+    setIsDeleteDialogOpen(true)
+  }
+
+  const handleConfirmDelete = async () => {
+    if (!deletingId) return
     try {
-      const response = await fetch(`/api/action-buttons/${id}`, {
+      setIsDeleting(true)
+      const response = await fetch(`/api/action-buttons/${deletingId}`, {
         method: 'DELETE'
       })
 
@@ -162,7 +173,9 @@ export function ActionButtonsTab({ onChanges }: ActionButtonsTabProps) {
           title: "Success",
           description: "Action button deleted successfully",
         })
-        fetchActionButtons() // Refresh the list
+        setIsDeleteDialogOpen(false)
+        setDeletingId(null)
+        fetchActionButtons()
         onChanges(true)
       } else {
         const error = await response.json()
@@ -179,6 +192,8 @@ export function ActionButtonsTab({ onChanges }: ActionButtonsTabProps) {
         description: "Failed to delete action button",
         variant: "destructive"
       })
+    } finally {
+      setIsDeleting(false)
     }
   }
 
@@ -373,18 +388,48 @@ export function ActionButtonsTab({ onChanges }: ActionButtonsTabProps) {
             >
               Cancel
             </Button>
-            <Button 
+            <SaveButton 
               onClick={handleSaveButton}
-              className="bg-indigo-500 hover:bg-indigo-600"
-              disabled={isSaving || !formData.buttonText.trim() || !formData.question.trim()}
+              isLoading={isSaving}
+              disabled={!formData.buttonText.trim() || !formData.question.trim()}
+            />
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Delete Confirmation Dialog */}
+      <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Delete action button?</DialogTitle>
+            <DialogDescription>
+              This action cannot be undone. This will permanently delete the action button.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button 
+              variant="outline" 
+              onClick={() => {
+                setIsDeleteDialogOpen(false)
+                setDeletingId(null)
+              }}
+              disabled={isDeleting}
             >
-              {isSaving ? (
+              Cancel
+            </Button>
+            <Button 
+              variant="destructive"
+              onClick={handleConfirmDelete}
+              className="bg-red-600 hover:bg-red-700"
+              disabled={isDeleting}
+            >
+              {isDeleting ? (
                 <>
                   <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                  Saving...
+                  Deleting...
                 </>
               ) : (
-                'Save'
+                'Delete'
               )}
             </Button>
           </DialogFooter>

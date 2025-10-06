@@ -8,7 +8,7 @@ export interface SearchResult {
   documentType: string
   content: string
   similarity: number
-  metadata?: any
+  metadata?: Record<string, unknown>
   url?: string
 }
 

@@ -73,7 +73,7 @@ export default function SignupPage() {
         
         {/* Terms */}
         <div className="text-sm text-gray-600">
-          By creating an account, you agree to AIVANTI's <span className="text-indigo-500 font-medium cursor-pointer hover:underline">Terms of Service & Privacy Policy</span>
+          By creating an account, you agree to AIVANTI&apos;s <span className="text-indigo-500 font-medium cursor-pointer hover:underline">Terms of Service & Privacy Policy</span>
         </div>
       </div>
       

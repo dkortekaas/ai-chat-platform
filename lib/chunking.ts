@@ -1,13 +1,13 @@
 export interface ChunkOptions {
   chunkSize: number
   chunkOverlap: number
-  metadata?: Record<string, any>
+  metadata?: Record<string, unknown>
 }
 
 export interface TextChunk {
   content: string
   chunkIndex: number
-  metadata?: Record<string, any>
+  metadata?: Record<string, unknown>
   tokenCount?: number
 }
 

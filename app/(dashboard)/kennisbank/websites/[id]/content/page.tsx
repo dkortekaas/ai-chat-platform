@@ -185,7 +185,7 @@ export default function WebsiteContentPage() {
           <AlertCircle className="w-12 h-12 mx-auto mb-4 text-gray-400" />
           <h3 className="text-lg font-medium text-gray-900 mb-2">Website not found</h3>
           <p className="text-sm text-gray-500">
-            The website you're looking for could not be found.
+            The website you&apos;re looking for could not be found.
           </p>
         </div>
       </div>

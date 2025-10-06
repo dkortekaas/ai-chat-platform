@@ -1,6 +1,7 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
+import { useSearchParams } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { 
   TestTube,
@@ -26,11 +27,19 @@ const tabs = [
 ]
 
 export default function SettingsPage() {
+  const searchParams = useSearchParams()
   const [activeTab, setActiveTab] = useState('look-and-feel')
   const [hasChanges, setHasChanges] = useState(false)
   const [isSaving, setIsSaving] = useState(false)
-  const { currentAssistant, refreshAssistants } = useAssistant()
+  const { currentAssistant } = useAssistant()
   const { toast } = useToast()
+
+  useEffect(() => {
+    const tab = searchParams.get('tab')
+    if (tab && tabs.find(t => t.id === tab)) {
+      setActiveTab(tab)
+    }
+  }, [searchParams])
 
   const ActiveComponent = tabs.find(tab => tab.id === activeTab)?.component
 

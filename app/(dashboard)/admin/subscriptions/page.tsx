@@ -3,7 +3,6 @@
 import { useState, useEffect } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { 
@@ -17,11 +16,9 @@ import {
   Loader2, 
   Users,
   CreditCard,
-  TrendingUp,
   DollarSign,
   Calendar,
-  Search,
-  Filter
+  Search
 } from 'lucide-react'
 import { useToast } from '@/hooks/use-toast'
 import { useSession } from 'next-auth/react'
@@ -80,16 +77,6 @@ export default function AdminSubscriptionsPage() {
   const { data: session } = useSession()
   const router = useRouter()
 
-  useEffect(() => {
-    // Check if user is superuser
-    if (session?.user?.role !== 'SUPERUSER') {
-      router.push('/dashboard')
-      return
-    }
-    
-    fetchSubscriptions()
-  }, [session, router])
-
   const fetchSubscriptions = async () => {
     try {
       setIsLoading(true)
@@ -116,6 +103,16 @@ export default function AdminSubscriptionsPage() {
       setIsLoading(false)
     }
   }
+
+  useEffect(() => {
+    // Check if user is superuser
+    if (session?.user?.role !== 'SUPERUSER') {
+      router.push('/dashboard')
+      return
+    }
+    
+    fetchSubscriptions()
+  }, [session, router])
 
   const filteredUsers = users.filter(user => {
     const matchesSearch = user.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||

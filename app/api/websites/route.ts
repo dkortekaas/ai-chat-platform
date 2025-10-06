@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
-import { PrismaClient } from '@prisma/client'
+import { PrismaClient, Prisma } from '@prisma/client'
 import { WebsiteScraper } from '@/lib/website-scraper'
 import { chunkWebsiteContent } from '@/lib/chunking'
 import { generateEmbeddings, estimateTokens, EMBEDDINGS_ENABLED } from '@/lib/openai'
@@ -147,7 +147,17 @@ export async function POST(request: NextRequest) {
     scrapeWebsiteInBackground(website.id, normalizedUrl)
 
     return NextResponse.json(website, { status: 201 })
-  } catch (error) {
+  } catch (error: unknown) {
+    // Prisma unique constraint -> duplicate URL
+    if (typeof error === 'object' && error !== null && (error as { code?: string }).code === 'P2002') {
+      return NextResponse.json(
+        {
+          error: 'Deze website URL is al toegevoegd. Kies een andere URL of bewerk de bestaande.',
+          code: 'DUPLICATE_URL'
+        },
+        { status: 409 }
+      )
+    }
     console.error('Error creating website:', error)
     return NextResponse.json(
       { error: 'Failed to create website' },
@@ -213,7 +223,10 @@ async function scrapeWebsiteInBackground(websiteId: string, url: string) {
       // Create document chunks for RAG if content exists and OpenAI is available
       if (page.content && page.content.trim().length > 0 && !page.error && process.env.OPENAI_API_KEY && EMBEDDINGS_ENABLED) {
         try {
-          await createDocumentChunksForPage(websitePage, { id: websiteId, url: url })
+          await createDocumentChunksForPage({
+            ...websitePage,
+            links: Array.isArray(websitePage.links) ? websitePage.links.filter((link): link is string => typeof link === 'string') : undefined
+          }, { id: websiteId, url: url })
         } catch (embeddingError) {
           console.warn(`Failed to create embeddings for page ${page.url}:`, embeddingError)
           // Continue without embeddings - the page is still saved
@@ -238,7 +251,7 @@ async function scrapeWebsiteInBackground(websiteId: string, url: string) {
 }
 
 // Create document chunks for RAG system
-async function createDocumentChunksForPage(websitePage: { id: string; url: string; title: string | null; content: string; scrapedAt: Date | null; links?: any }, website: { id: string; url: string }) {
+async function createDocumentChunksForPage(websitePage: { id: string; url: string; title: string | null; content: string; scrapedAt: Date | null; links?: string[] }, website: { id: string; url: string }) {
   try {
     // Create a document entry for this page
     const document = await prisma.document.create({
@@ -303,7 +316,10 @@ async function createDocumentChunksForPage(websitePage: { id: string; url: strin
     // Save chunks in batches
     for (const chunk of documentChunks) {
       await prisma.documentChunk.create({
-        data: chunk
+        data: {
+          ...chunk,
+          metadata: chunk.metadata as Prisma.InputJsonValue
+        }
       })
     }
 

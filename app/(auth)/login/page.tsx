@@ -21,7 +21,7 @@ export default function LoginPage() {
               Welcome back!
             </h1>
             <p className="text-lg text-gray-600 leading-relaxed">
-              Access your account to manage your AI assistant, streamline workflows, and enhance customer engagement. Let's continue <strong>driving your business forward with the power of Aivanti.</strong>
+              Access your account to manage your AI assistant, streamline workflows, and enhance customer engagement. Let&apos;s continue <strong>driving your business forward with the power of Aivanti.</strong>
             </p>
           </div>
           
@@ -73,7 +73,7 @@ export default function LoginPage() {
         
         {/* Terms */}
         <div className="text-sm text-gray-600">
-          By signing in, you agree to AIVANTI's <span className="text-indigo-500 font-medium cursor-pointer hover:underline">Terms of Service & Privacy Policy</span>
+          By signing in, you agree to AIVANTI&apos;s <span className="text-indigo-500 font-medium cursor-pointer hover:underline">Terms of Service & Privacy Policy</span>
         </div>
       </div>
       

@@ -43,16 +43,17 @@ export async function generateEmbedding(text: string): Promise<number[]> {
       
       console.log(`Successfully generated embedding using model: ${model}`)
       return response.data[0].embedding
-    } catch (error: any) {
-      console.warn(`Model ${model} failed:`, error?.message || error)
+    } catch (error: unknown) {
+      const errorObj = error as { message?: string; status?: number; code?: string }
+      console.warn(`Model ${model} failed:`, errorObj?.message || error)
       
       // If it's a model access error, try the next model
-      if (error?.status === 403 && error?.code === 'model_not_found') {
+      if (errorObj?.status === 403 && errorObj?.code === 'model_not_found') {
         continue
       }
       
       // For other errors, throw immediately
-      throw new Error(`Failed to generate embedding with model ${model}: ${error?.message || 'Unknown error'}`)
+      throw new Error(`Failed to generate embedding with model ${model}: ${errorObj?.message || 'Unknown error'}`)
     }
   }
   
@@ -80,16 +81,17 @@ export async function generateEmbeddings(texts: string[]): Promise<number[][]> {
       
       console.log(`Successfully generated embeddings using model: ${model}`)
       return response.data.map(item => item.embedding)
-    } catch (error: any) {
-      console.warn(`Model ${model} failed:`, error?.message || error)
+    } catch (error: unknown) {
+      const errorObj = error as { message?: string; status?: number; code?: string }
+      console.warn(`Model ${model} failed:`, errorObj?.message || error)
       
       // If it's a model access error, try the next model
-      if (error?.status === 403 && error?.code === 'model_not_found') {
+      if (errorObj?.status === 403 && errorObj?.code === 'model_not_found') {
         continue
       }
       
       // For other errors, throw immediately
-      throw new Error(`Failed to generate embeddings with model ${model}: ${error?.message || 'Unknown error'}`)
+      throw new Error(`Failed to generate embeddings with model ${model}: ${errorObj?.message || 'Unknown error'}`)
     }
   }
   

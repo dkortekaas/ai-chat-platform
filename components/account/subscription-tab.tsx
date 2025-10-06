@@ -25,7 +25,12 @@ interface SubscriptionData {
     createdAt: string
     isTrialActive: boolean
     trialDaysRemaining: number
-    currentPlan: any
+    currentPlan: {
+      id: string
+      name: string
+      price: number
+      interval: string
+    }
   }
 }
 

@@ -64,12 +64,6 @@ export default function WebsiteDetailPage() {
   const [syncLogs, setSyncLogs] = useState<SyncLog[]>([])
   const [isLoading, setIsLoading] = useState(true)
 
-  useEffect(() => {
-    if (params.id) {
-      fetchWebsiteDetails()
-    }
-  }, [params.id])
-
   const fetchWebsiteDetails = async () => {
     try {
       const response = await fetch(`/api/websites/${params.id}`)
@@ -154,6 +148,12 @@ export default function WebsiteDetailPage() {
       setIsLoading(false)
     }
   }
+
+  useEffect(() => {
+    if (params.id) {
+      fetchWebsiteDetails()
+    }
+  }, [params.id])
 
   const getStatusIcon = (status: Website['status']) => {
     switch (status) {

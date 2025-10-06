@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
@@ -23,7 +23,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import { AssistantForm } from '@/components/kennisbank/assistant-form'
+// Removed modal-based AssistantForm in favor of dedicated create page
 import { DeleteConfirmationModal } from '@/components/kennisbank/delete-confirmation-modal'
 import { useToast } from '@/hooks/use-toast'
 import { useAssistant } from '@/contexts/assistant-context'
@@ -54,16 +54,14 @@ interface Assistant {
 export default function AssistantsPage() {
   const router = useRouter()
   const { assistants, refreshAssistants, isLoading } = useAssistant()
-  const [isFormOpen, setIsFormOpen] = useState(false)
-  const [editingAssistant, setEditingAssistant] = useState<Assistant | null>(null)
+  // Form modal removed; navigation used instead
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
   const [assistantToDelete, setAssistantToDelete] = useState<Assistant | null>(null)
   const [isDeleting, setIsDeleting] = useState(false)
   const { toast } = useToast()
 
   const handleAddAssistant = () => {
-    setEditingAssistant(null)
-    setIsFormOpen(true)
+    router.push('/assistants/new')
   }
 
   const handleEditAssistant = (assistant: Assistant) => {
@@ -159,14 +157,7 @@ export default function AssistantsPage() {
     }
   }
 
-  const handleFormSuccess = () => {
-    refreshAssistants()
-  }
-
-  const handleFormClose = () => {
-    setIsFormOpen(false)
-    setEditingAssistant(null)
-  }
+  // Removed form callbacks; not needed with dedicated page
 
   const formatCreatedDate = (dateString: string) => {
     const date = new Date(dateString)
@@ -339,13 +330,7 @@ export default function AssistantsPage() {
         )}
       </div>
 
-      {/* Assistant Form Dialog */}
-      <AssistantForm
-        isOpen={isFormOpen}
-        onClose={handleFormClose}
-        onSuccess={handleFormSuccess}
-        assistant={editingAssistant}
-      />
+      {/* Creation moved to /assistants/new */}
 
       {/* Delete Confirmation Modal */}
       <DeleteConfirmationModal

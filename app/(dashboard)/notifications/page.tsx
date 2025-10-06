@@ -206,7 +206,7 @@ export default function NotificationsPage() {
           <div className="flex gap-4">
             <div className="flex-1">
               <label className="text-sm font-medium mb-2 block">Status</label>
-              <Select value={filter} onValueChange={(value: any) => setFilter(value)}>
+              <Select value={filter} onValueChange={(value: string) => setFilter(value as 'all' | 'unread' | 'read')}>
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>

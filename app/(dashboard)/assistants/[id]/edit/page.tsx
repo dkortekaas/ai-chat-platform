@@ -16,11 +16,11 @@ import { useToast } from '@/hooks/use-toast'
 import { useAssistant } from '@/contexts/assistant-context'
 import { 
   ArrowLeft, 
-  Save, 
   X, 
   Plus,
   Info
 } from 'lucide-react'
+import SaveButton from '@/components/ui/save-button'
 
 interface Assistant {
   id: string
@@ -92,7 +92,7 @@ export default function EditAssistantPage() {
   const router = useRouter()
   const params = useParams()
   const { toast } = useToast()
-  const { currentAssistant, refreshAssistants } = useAssistant()
+  const { } = useAssistant()
   
   const [assistant, setAssistant] = useState<Assistant | null>(null)
   const [isLoading, setIsLoading] = useState(true)
@@ -179,7 +179,7 @@ export default function EditAssistantPage() {
     loadAssistant()
   }, [params.id, router])
 
-  const handleInputChange = (field: string, value: any) => {
+  const handleInputChange = (field: string, value: string | boolean | number) => {
     setFormData(prev => ({
       ...prev,
       [field]: value
@@ -297,14 +297,13 @@ export default function EditAssistantPage() {
             <X className="w-4 h-4 mr-2" />
             Cancel
           </Button>
-          <Button
+          <SaveButton
             onClick={handleSave}
-            disabled={!hasChanges || isSaving}
-            className="bg-indigo-500 hover:bg-indigo-600"
+            isLoading={isSaving}
+            disabled={!hasChanges}
           >
-            <Save className="w-4 h-4 mr-2" />
-            {isSaving ? 'Saving...' : 'Save Changes'}
-          </Button>
+            Save Changes
+          </SaveButton>
         </div>
       </div>
 

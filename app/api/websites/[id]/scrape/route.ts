@@ -160,7 +160,7 @@ async function scrapeWebsiteInBackground(websiteId: string, url: string) {
 }
 
 // Create document chunks for RAG system
-async function createDocumentChunksForPage(websitePage: { id: string; url: string; title: string | null; content: string; scrapedAt: Date | null; links?: any }, website: { id: string; url: string }) {
+async function createDocumentChunksForPage(websitePage: { id: string; url: string; title: string | null; content: string; scrapedAt: Date | null; links?: string[] }, website: { id: string; url: string }) {
   try {
     // Create a document entry for this page
     const document = await prisma.document.create({

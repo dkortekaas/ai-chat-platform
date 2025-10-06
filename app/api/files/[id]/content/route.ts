@@ -13,7 +13,7 @@ export async function GET(
 ) {
   try {
     const session = await getServerSession(authOptions)
-    if (!session?.user?.email) {
+    if (!session?.user?.id) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
@@ -29,6 +29,11 @@ export async function GET(
         { error: 'File not found' },
         { status: 404 }
       )
+    }
+
+    // Enforce ownership
+    if ((knowledgeFile as { userId?: string }).userId && (knowledgeFile as { userId?: string }).userId !== session.user.id) {
+      return NextResponse.json({ error: 'Not found' }, { status: 404 })
     }
 
     // Get the associated document if it exists
@@ -98,7 +103,7 @@ export async function GET(
         description: knowledgeFile.description,
         errorMessage: knowledgeFile.errorMessage,
         documentId: document?.id,
-        hasEmbeddings: document?.chunks?.some(chunk => chunk.embedding) || false
+        hasEmbeddings: document?.chunks?.some(chunk => (chunk as { embedding?: unknown }).embedding) || false
       }
     }
 

@@ -17,7 +17,7 @@ export async function GET() {
     }
 
     // Zoek bestaande instellingen voor de gebruiker
-    let settings = await prisma.chatbotSettings.findFirst({
+    let settings = await prisma.chatbot_settings.findFirst({
       where: {
         userId: session.user.id
       }
@@ -25,8 +25,9 @@ export async function GET() {
 
     // Als er geen instellingen zijn, maak dan standaard instellingen aan
     if (!settings) {
-      settings = await prisma.chatbotSettings.create({
+      settings = await prisma.chatbot_settings.create({
         data: {
+          id: `chatbot_${session.user.id}_${Date.now()}`,
           userId: session.user.id,
           name: 'AI Assistant',
           welcomeMessage: 'Hallo! Hoe kan ik je helpen?',
@@ -36,7 +37,9 @@ export async function GET() {
           tone: 'friendly',
           temperature: 0.7,
           maxResponseLength: 500,
-          fallbackMessage: 'Sorry, ik begrijp je vraag niet. Kun je het anders formuleren?'
+          fallbackMessage: 'Sorry, ik begrijp je vraag niet. Kun je het anders formuleren?',
+          apiKey: `api_${session.user.id}_${Date.now()}`,
+          updatedAt: new Date()
         }
       })
     }
@@ -88,7 +91,7 @@ export async function PUT(request: NextRequest) {
     }
 
     // Zoek bestaande instellingen
-    let settings = await prisma.chatbotSettings.findFirst({
+    let settings = await prisma.chatbot_settings.findFirst({
       where: {
         userId: session.user.id
       }
@@ -96,7 +99,7 @@ export async function PUT(request: NextRequest) {
 
     if (settings) {
       // Update bestaande instellingen
-      settings = await prisma.chatbotSettings.update({
+      settings = await prisma.chatbot_settings.update({
         where: {
           id: settings.id
         },
@@ -115,8 +118,9 @@ export async function PUT(request: NextRequest) {
       })
     } else {
       // Maak nieuwe instellingen aan
-      settings = await prisma.chatbotSettings.create({
+      settings = await prisma.chatbot_settings.create({
         data: {
+          id: `chatbot_${session.user.id}_${Date.now()}`,
           userId: session.user.id,
           name,
           welcomeMessage,
@@ -126,7 +130,9 @@ export async function PUT(request: NextRequest) {
           tone,
           temperature,
           maxResponseLength,
-          fallbackMessage
+          fallbackMessage,
+          apiKey: `api_${session.user.id}_${Date.now()}`,
+          updatedAt: new Date()
         }
       })
     }

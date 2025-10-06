@@ -12,14 +12,37 @@ import * as mammoth from 'mammoth'
 const prisma = new PrismaClient()
 
 // GET /api/files - Get all files
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions)
-    if (!session?.user?.email) {
+    if (!session?.user?.id) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
+    const { searchParams } = new URL(request.url)
+    const assistantId = searchParams.get('assistantId')
+
+    if (!assistantId) {
+      return NextResponse.json(
+        { error: 'Assistant ID is required' },
+        { status: 400 }
+      )
+    }
+
+    // Verify the assistant belongs to the current user
+    const assistant = await prisma.chatbot_settings.findFirst({
+      where: { id: assistantId, userId: session.user.id }
+    })
+
+    if (!assistant) {
+      return NextResponse.json(
+        { error: 'Assistant not found' },
+        { status: 404 }
+      )
+    }
+
     const files = await prisma.knowledgeFile.findMany({
+      where: { assistantId, userId: session.user.id } as Record<string, unknown>,
       orderBy: { createdAt: 'desc' }
     })
 
@@ -37,18 +60,38 @@ export async function GET() {
 export async function POST(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions)
-    if (!session?.user?.email) {
+    if (!session?.user?.id) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
     const formData = await request.formData()
     const file = formData.get('file') as File
     const description = formData.get('description') as string
+    const assistantId = formData.get('assistantId') as string | null
 
     if (!file) {
       return NextResponse.json(
         { error: 'No file provided' },
         { status: 400 }
+      )
+    }
+
+    if (!assistantId) {
+      return NextResponse.json(
+        { error: 'Assistant ID is required' },
+        { status: 400 }
+      )
+    }
+
+    // Verify the assistant belongs to the current user
+    const assistant = await prisma.chatbot_settings.findFirst({
+      where: { id: assistantId, userId: session.user.id }
+    })
+
+    if (!assistant) {
+      return NextResponse.json(
+        { error: 'Assistant not found' },
+        { status: 404 }
       )
     }
 
@@ -96,8 +139,10 @@ export async function POST(request: NextRequest) {
     await writeFile(filePath, buffer)
 
     // Save file info to database
-    const knowledgeFile = await prisma.knowledgeFile.create({
+    const knowledgeFile = await (prisma.knowledgeFile as unknown as { create: (args: unknown) => Promise<unknown> }).create({
       data: {
+        userId: session.user.id,
+        assistantId,
         originalName: file.name,
         fileName,
         filePath,
@@ -109,7 +154,7 @@ export async function POST(request: NextRequest) {
     })
 
     // Process the file content for AI usage
-    await processDocumentForAI(knowledgeFile.id, filePath, file.type, file.name)
+    await processDocumentForAI((knowledgeFile as { id: string }).id, filePath, file.type, file.name)
 
     return NextResponse.json(knowledgeFile, { status: 201 })
   } catch (error) {
@@ -147,35 +192,11 @@ async function processDocumentForAI(fileId: string, filePath: string, mimeType: 
       try {
         const pdfBuffer = await readFile(filePath)
         
-        // Import pdf-parse - it exports { PDFParse, pdf }
+        // Import pdf-parse
         const pdfModule = await import('pdf-parse')
-        const moduleAny = pdfModule as any
-        
-        // Use the correct pdf-parse export
-        let pdfParse: any = null
-        
-        // Try the pdf export first (this is the main function)
-        if (typeof moduleAny.pdf === 'function') {
-          pdfParse = moduleAny.pdf
-        } else if (typeof moduleAny.PDFParse === 'function') {
-          // PDFParse might be a class, try calling it directly first
-          try {
-            pdfParse = moduleAny.PDFParse
-          } catch (err) {
-            // If direct call fails, try as class constructor
-            pdfParse = new moduleAny.PDFParse()
-          }
-        } else if (typeof moduleAny === 'function') {
-          pdfParse = moduleAny
-        } else if (typeof moduleAny.default === 'function') {
-          pdfParse = moduleAny.default
-        } else {
-          throw new Error(`pdf-parse export not callable. Available exports: ${Object.keys(moduleAny).join(', ')}`)
-        }
-
-        const pdfData = await pdfParse(pdfBuffer)
-        contentText = pdfData.text
-        console.log(`Extracted ${pdfData.numpages} pages from PDF: ${originalName}`)
+        const { text, numpages } = await (pdfModule as unknown as (b: Buffer) => Promise<{ text: string; numpages: number }>)(pdfBuffer)
+        contentText = text ?? ''
+        console.log(`Extracted ${numpages ?? 'unknown'} pages from PDF: ${originalName}`)
       } catch (error) {
         console.error(`Error parsing PDF ${originalName}:`, error)
         await prisma.knowledgeFile.update({
@@ -251,7 +272,7 @@ async function processDocumentForAI(fileId: string, filePath: string, mimeType: 
       data: {
         name: originalName,
         originalName: originalName,
-        type: documentType as any,
+        type: documentType as 'PDF' | 'DOCX' | 'TXT',
         mimeType: mimeType,
         filePath: filePath,
         contentText: contentText,
@@ -311,7 +332,10 @@ async function processDocumentForAI(fileId: string, filePath: string, mimeType: 
         // Save chunks in batches
         for (const chunk of documentChunks) {
           await prisma.documentChunk.create({
-            data: chunk
+            data: {
+              ...chunk,
+              metadata: chunk.metadata
+            }
           })
         }
 
@@ -327,7 +351,7 @@ async function processDocumentForAI(fileId: string, filePath: string, mimeType: 
               chunkIndex: chunk.chunkIndex,
               content: chunk.content,
               tokenCount: estimateTokens(chunk.content),
-              metadata: chunk.metadata
+              metadata: chunk.metadata as Record<string, unknown>
             }
           })
         }
@@ -343,7 +367,7 @@ async function processDocumentForAI(fileId: string, filePath: string, mimeType: 
             chunkIndex: chunk.chunkIndex,
             content: chunk.content,
             tokenCount: estimateTokens(chunk.content),
-            metadata: chunk.metadata
+            metadata: chunk.metadata as Record<string, unknown>
           }
         })
       }
@@ -357,7 +381,7 @@ async function processDocumentForAI(fileId: string, filePath: string, mimeType: 
       data: { 
         status: 'COMPLETED',
         metadata: {
-          ...((document as any).metadata ?? {}),
+          ...((document as { metadata?: Record<string, unknown> }).metadata ?? {}),
           chunksCreated: chunks.length,
           totalTokens: chunks.reduce((sum, chunk) => sum + estimateTokens(chunk.content), 0)
         }

@@ -21,7 +21,7 @@ export default function ForgotPasswordPage() {
               Forgot your password?
             </h1>
             <p className="text-lg text-gray-600 leading-relaxed">
-              No worries! Enter your email address and we'll send you a link to reset your password. You'll be back to <strong>managing your AI assistant in no time.</strong>
+              No worries! Enter your email address and we&apos;ll send you a link to reset your password. You&apos;ll be back to <strong>managing your AI assistant in no time.</strong>
             </p>
           </div>
           

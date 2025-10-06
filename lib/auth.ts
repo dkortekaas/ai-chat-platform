@@ -68,14 +68,14 @@ export const authOptions: AuthOptions = {
     strategy: 'jwt' as const,
   },
   callbacks: {
-    async jwt({ token, user }: any) {
+    async jwt({ token, user }: { token: { id?: string; role?: string; [key: string]: unknown }; user: { id: string; role: string; [key: string]: unknown } | undefined }) {
       if (user) {
         token.id = user.id
         token.role = user.role
       }
       return token
     },
-    async session({ session, token }: any) {
+    async session({ session, token }: { session: { user: { id?: string; role?: string; [key: string]: unknown } }; token: { id?: string; role?: string; [key: string]: unknown } }) {
       if (token && session.user) {
         session.user.id = token.id as string
         session.user.role = token.role as string

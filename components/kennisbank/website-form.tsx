@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { Button } from '@/components/ui/button'
+import SaveButton from '@/components/ui/save-button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
@@ -68,6 +69,29 @@ export function WebsiteForm({ isOpen, onClose, onSuccess, website }: WebsiteForm
       return
     }
     
+    // Normalize URL for comparison (lowercase, remove trailing slash)
+    const normalizeUrl = (u: string) => u.trim().toLowerCase().replace(/\/$/, '')
+    const normalizedInputUrl = normalizeUrl(formData.url)
+
+    // Preflight duplicate check against existing websites for this assistant
+    try {
+      const existingResp = await fetch(`/api/websites?assistantId=${currentAssistant.id}`)
+      if (existingResp.ok) {
+        const existingList: Array<{ url: string }> = await existingResp.json()
+        const alreadyExists = existingList.some(w => normalizeUrl(w.url) === normalizedInputUrl)
+        if (alreadyExists) {
+          toast({
+            title: 'URL bestaat al',
+            description: 'Deze website URL is al toegevoegd voor deze assistant. Kies een andere URL of bewerk de bestaande.',
+            variant: 'destructive',
+          })
+          return
+        }
+      }
+    } catch {
+      // If the preflight check fails, continue to submit; server will still validate
+    }
+    
     setIsLoading(true)
 
     try {
@@ -87,14 +111,40 @@ export function WebsiteForm({ isOpen, onClose, onSuccess, website }: WebsiteForm
       })
 
       if (!response.ok) {
-        const error = await response.json()
-        
-        // Handle specific error cases
-        if (response.status === 409 && error.code === 'DUPLICATE_URL') {
-          throw new Error('This website URL has already been added to this assistant. Please choose a different URL or edit the existing one.')
+        let errorData: { error?: string; message?: string } | null = null
+        try {
+          errorData = (await response.json()) as { error?: string; message?: string }
+        } catch {
+          // ignore parse errors
         }
-        
-        throw new Error(error.error || 'Failed to save website')
+
+        // Handle duplicate URL explicitly with toast
+        if (response.status === 409) {
+          toast({
+            title: 'URL bestaat al',
+            description: 'Deze website URL is al toegevoegd voor deze assistant. Kies een andere URL of bewerk de bestaande.',
+            variant: 'destructive',
+          })
+          return
+        }
+
+        // Fallback for server 500 with unique constraint (no structured code)
+        if (response.status === 500 && errorData && typeof errorData.error === 'string' && errorData.error.toLowerCase().includes('failed to create website')) {
+          toast({
+            title: 'Fout bij opslaan',
+            description: 'Deze website URL lijkt al te bestaan. Kies een andere URL of bewerk de bestaande.',
+            variant: 'destructive',
+          })
+          return
+        }
+
+        // Generic error toast
+        toast({
+          title: 'Fout bij opslaan',
+          description: (errorData && (errorData.error || errorData.message)) || 'Er is iets misgegaan bij het opslaan.',
+          variant: 'destructive',
+        })
+        return
       }
 
       toast({
@@ -209,9 +259,9 @@ export function WebsiteForm({ isOpen, onClose, onSuccess, website }: WebsiteForm
             >
               Cancel
             </Button>
-            <Button type="submit" disabled={isLoading}>
-              {isLoading ? 'Saving...' : (isEditing ? 'Update' : 'Add')}
-            </Button>
+            <SaveButton type="submit" isLoading={isLoading}>
+              {isEditing ? 'Update' : 'Add'}
+            </SaveButton>
           </DialogFooter>
         </form>
       </DialogContent>

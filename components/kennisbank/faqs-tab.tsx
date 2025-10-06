@@ -45,13 +45,6 @@ export function FaqsTab() {
   const [isDeleting, setIsDeleting] = useState(false)
   const { toast } = useToast()
 
-  // Fetch FAQs on component mount and when assistant changes
-  useEffect(() => {
-    if (currentAssistant) {
-      fetchFAQs()
-    }
-  }, [currentAssistant])
-
   const fetchFAQs = async () => {
     if (!currentAssistant) return
     
@@ -73,6 +66,13 @@ export function FaqsTab() {
       setIsLoading(false)
     }
   }
+
+  // Fetch FAQs on component mount and when assistant changes
+  useEffect(() => {
+    if (currentAssistant) {
+      fetchFAQs()
+    }
+  }, [currentAssistant])
 
   const handleAddFAQ = () => {
     setEditingFAQ(null)
@@ -240,7 +240,7 @@ export function FaqsTab() {
         <div>
           <h2 className="text-lg font-semibold text-gray-900">FAQs</h2>
           <p className="text-sm text-gray-500">
-            Create and edit frequently asked questions to guide <strong>{currentAssistant.name}</strong>'s responses.
+            Create and edit frequently asked questions to guide <strong>{currentAssistant.name}</strong>&apos;s responses.
           </p>
         </div>
         <div className="flex gap-2">
@@ -292,7 +292,7 @@ export function FaqsTab() {
               ) : faqs.length === 0 ? (
                 <tr>
                   <td colSpan={4} className="px-6 py-8 text-center text-gray-500">
-                    No FAQs added yet. Click "Add FAQ" to get started.
+                    No FAQs added yet. Click &quot;Add FAQ&quot; to get started.
                   </td>
                 </tr>
               ) : (

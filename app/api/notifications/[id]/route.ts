@@ -6,9 +6,10 @@ import { UserRole } from '@prisma/client'
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params
     const session = await getServerSession(authOptions)
     if (!session?.user?.id) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
@@ -16,7 +17,7 @@ export async function GET(
 
     const notification = await prisma.notification.findFirst({
       where: {
-        id: params.id,
+        id,
         isActive: true,
         OR: [
           { targetUsers: { has: session.user.id } },
@@ -51,9 +52,10 @@ export async function GET(
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params
     const session = await getServerSession(authOptions)
     if (!session?.user?.id) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
@@ -72,7 +74,7 @@ export async function PUT(
 
     // Find the notification
     const existingNotification = await prisma.notification.findUnique({
-      where: { id: params.id }
+      where: { id }
     })
 
     if (!existingNotification) {
@@ -86,7 +88,7 @@ export async function PUT(
       }
 
       const notification = await prisma.notification.update({
-        where: { id: params.id },
+        where: { id },
         data: { isRead }
       })
 
@@ -94,7 +96,7 @@ export async function PUT(
     }
 
     // Superuser can update all fields
-    const updateData: any = {}
+    const updateData: { isRead?: boolean; title?: string; message?: string; type?: string; priority?: string } = {}
     if (isRead !== undefined) updateData.isRead = isRead
     if (title !== undefined) updateData.title = title
     if (message !== undefined) updateData.message = message
@@ -105,7 +107,7 @@ export async function PUT(
     if (isActive !== undefined) updateData.isActive = isActive
 
     const notification = await prisma.notification.update({
-      where: { id: params.id },
+      where: { id },
       data: updateData,
       include: {
         createdByUser: {
@@ -127,9 +129,10 @@ export async function PUT(
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params
     const session = await getServerSession(authOptions)
     if (!session?.user?.id) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
@@ -146,7 +149,7 @@ export async function DELETE(
     }
 
     const existingNotification = await prisma.notification.findUnique({
-      where: { id: params.id }
+      where: { id }
     })
 
     if (!existingNotification) {
@@ -154,7 +157,7 @@ export async function DELETE(
     }
 
     await prisma.notification.delete({
-      where: { id: params.id }
+      where: { id }
     })
 
     return NextResponse.json({ message: 'Notification deleted successfully' })

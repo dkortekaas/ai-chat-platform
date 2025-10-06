@@ -168,7 +168,7 @@ model SystemLog {
 model Website {
   id           String        @id @default(cuid())
   assistantId  String?
-  url          String        @unique
+  url          String
   name         String?
   description  String?
   pageCount    Int           @default(0)
@@ -186,6 +186,7 @@ model Website {
   @@index([status])
   @@index([createdAt])
   @@index([assistantId])
+  @@unique([assistantId, url])
   @@map("websites")
 }
 
@@ -227,6 +228,10 @@ model FAQ {
 
 model KnowledgeFile {
   id           String     @id @default(cuid())
+  // Owner of this file (for multi-tenant scoping)
+  userId       String?
+  // Optional scoping to a specific assistant
+  assistantId  String?
   originalName String
   fileName     String
   filePath     String
@@ -240,10 +245,28 @@ model KnowledgeFile {
   createdAt    DateTime   @default(now())
   updatedAt    DateTime   @updatedAt
 
+  @@index([userId])
+  @@index([assistantId])
   @@index([status])
   @@index([enabled])
   @@index([createdAt])
   @@map("knowledge_files")
+}
+
+model ContactForm {
+  id           String   @id @default(cuid())
+  assistantId  String?
+  name         String
+  description  String   @default("")
+  enabled      Boolean  @default(true)
+  redirectUrl  String?
+  fields       Json     @default("[]")
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@index([assistantId])
+  @@index([createdAt])
+  @@map("forms")
 }
 
 model chatbot_settings {
@@ -268,6 +291,24 @@ model chatbot_settings {
   createdAt         DateTime @default(now())
   updatedAt         DateTime
   users             User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  actionButtons     ActionButton[]
+}
+
+model ActionButton {
+  id          String            @id @default(cuid())
+  assistantId String
+  buttonText  String
+  question    String
+  priority    Int               @default(50)
+  enabled     Boolean           @default(true)
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
+
+  // Link to assistant settings for ownership scoping
+  assistant   chatbot_settings  @relation(fields: [assistantId], references: [id], onDelete: Cascade)
+
+  @@index([assistantId])
+  @@map("action_buttons")
 }
 
 model Notification {

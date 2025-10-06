@@ -37,8 +37,8 @@ export async function GET(request: NextRequest) {
           updatedAt: true,
           _count: {
             select: {
-              assistants: true,
-              createdNotifications: true
+              chatbot_settings: true,
+              notifications: true
             }
           }
         },
