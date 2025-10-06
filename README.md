@@ -634,7 +634,6 @@ After running the seed script, you can login with these test accounts:
 - Prijs: €19.00
 - Billing: Recurring (monthly)
 - Kopieer de **Price ID** (begint met `price_`)
-- price_1SDqcqApPiHZWDZPlBH43AMb
 
 **Professional Plan:**
 
@@ -642,7 +641,6 @@ After running the seed script, you can login with these test accounts:
 - Prijs: €49.00
 - Billing: Recurring (monthly)
 - Kopieer de **Price ID**
-- price_1SDqdhApPiHZWDZPvG9BDMDb
 
 **Business Plan:**
 
@@ -650,7 +648,6 @@ After running the seed script, you can login with these test accounts:
 - Prijs: €149.00
 - Billing: Recurring (monthly)
 - Kopieer de **Price ID**
-- price_1SDqf0ApPiHZWDZPyPhMFAuy
 
 **Enterprise Plan:**
 
@@ -658,7 +655,6 @@ After running the seed script, you can login with these test accounts:
 - Prijs: €499.00
 - Billing: Recurring (monthly)
 - Kopieer de **Price ID**
-- price_1SDqfhApPiHZWDZPa4I8EK0b
 
 ### 3. API Keys Ophalen
 
