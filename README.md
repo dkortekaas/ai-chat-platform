@@ -1,4 +1,4 @@
-# AI Chat Platform
+# Cited
 
 A modern, fully functional AI chat platform built with Next.js 15, TypeScript, and Prisma. This platform enables users to create AI chatbots, upload and process documents, manage knowledge bases, and view comprehensive analytics with a complete notification system.
 

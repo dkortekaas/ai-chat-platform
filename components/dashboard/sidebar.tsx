@@ -53,7 +53,7 @@ export function Sidebar() {
         <div className="flex h-16 shrink-0 items-center">
           <Bot className="h-8 w-8 text-indigo-500" />
           <span className="ml-2 text-xl font-semibold text-gray-900">
-            AI Chat
+            Cited
           </span>
         </div>
         <nav className="flex flex-1 flex-col">

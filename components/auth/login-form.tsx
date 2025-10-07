@@ -31,7 +31,7 @@ export function LoginForm() {
         setError('Ongeldige inloggegevens. Controleer je e-mailadres en wachtwoord.')
       } else if (result?.ok) {
         // Successful login, redirect to dashboard
-        router.push('/')
+        router.push('/dashboard')
         router.refresh()
       }
     } catch (error) {

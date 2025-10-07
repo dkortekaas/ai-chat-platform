@@ -10,7 +10,7 @@ export function EmbedCodeDisplay() {
   const [copied, setCopied] = useState(false)
 
   // Mock embed code - replace with actual generated code
-  const embedCode = `<!-- AI Chat Widget -->
+  const embedCode = `<!-- Cited Widget -->
 <script>
   (function() {
     var script = document.createElement('script');
@@ -21,7 +21,7 @@ export function EmbedCodeDisplay() {
     document.head.appendChild(script);
   })();
 </script>
-<!-- End AI Chat Widget -->`
+<!-- End Cited Widget -->`
 
   const handleCopy = async () => {
     try {

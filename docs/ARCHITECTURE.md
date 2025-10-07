@@ -2,7 +2,7 @@
 
 ## Overzicht
 
-Het AI Chatbot Platform bestaat uit drie hoofdcomponenten:
+Het Cited bestaat uit drie hoofdcomponenten:
 
 1. **Admin Portal** - Next.js applicatie voor beheer
 2. **Backend API** - Next.js API routes
@@ -49,59 +49,59 @@ Het AI Chatbot Platform bestaat uit drie hoofdcomponenten:
 
 #### Admin Portal
 
--   **Framework**: Next.js 14+ (App Router)
--   **Language**: TypeScript
--   **Styling**: TailwindCSS
--   **Components**: shadcn/ui
--   **Forms**: React Hook Form + Zod
--   **State**: React Query (TanStack Query)
--   **Icons**: Lucide React
+- **Framework**: Next.js 14+ (App Router)
+- **Language**: TypeScript
+- **Styling**: TailwindCSS
+- **Components**: shadcn/ui
+- **Forms**: React Hook Form + Zod
+- **State**: React Query (TanStack Query)
+- **Icons**: Lucide React
 
 #### Chatbot Widget
 
--   **Framework**: React 18
--   **Build Tool**: Vite
--   **Styling**: CSS (Shadow DOM isolation)
--   **Bundle Format**: IIFE (Immediately Invoked Function Expression)
+- **Framework**: React 18
+- **Build Tool**: Vite
+- **Styling**: CSS (Shadow DOM isolation)
+- **Bundle Format**: IIFE (Immediately Invoked Function Expression)
 
 ### Backend
 
--   **Framework**: Next.js 14+ API Routes
--   **Language**: TypeScript
--   **Database ORM**: Prisma
--   **Authentication**: Auth.js v5 (NextAuth.js)
--   **Validation**: Zod
--   **API Format**: REST
+- **Framework**: Next.js 14+ API Routes
+- **Language**: TypeScript
+- **Database ORM**: Prisma
+- **Authentication**: Auth.js v5 (NextAuth.js)
+- **Validation**: Zod
+- **API Format**: REST
 
 ### Database
 
--   **Provider**: Neon (Serverless PostgreSQL)
--   **ORM**: Prisma
--   **Extensions**: pgvector (for embeddings)
--   **Connection Pooling**: Built-in (PgBouncer)
+- **Provider**: Neon (Serverless PostgreSQL)
+- **ORM**: Prisma
+- **Extensions**: pgvector (for embeddings)
+- **Connection Pooling**: Built-in (PgBouncer)
 
 ### AI & ML
 
--   **LLM Provider**: OpenAI
--   **Models**:
-    -   `gpt-4o-mini` - Cost-effective for MVP
-    -   `gpt-4o` - Advanced queries (optional)
-    -   `text-embedding-3-small` - Embeddings (1536 dimensions)
--   **Vector Search**: PostgreSQL + pgvector
--   **Similarity**: Cosine similarity
+- **LLM Provider**: OpenAI
+- **Models**:
+  - `gpt-4o-mini` - Cost-effective for MVP
+  - `gpt-4o` - Advanced queries (optional)
+  - `text-embedding-3-small` - Embeddings (1536 dimensions)
+- **Vector Search**: PostgreSQL + pgvector
+- **Similarity**: Cosine similarity
 
 ### Storage
 
--   **Development**: Local file system
--   **Production**: Vercel Blob Storage
--   **Max File Size**: 10MB
+- **Development**: Local file system
+- **Production**: Vercel Blob Storage
+- **Max File Size**: 10MB
 
 ### Deployment
 
--   **Hosting**: Vercel
--   **CDN**: Vercel Edge Network
--   **Regions**: Global (auto-distributed)
--   **SSL**: Automatic HTTPS
+- **Hosting**: Vercel
+- **CDN**: Vercel Edge Network
+- **Regions**: Global (auto-distributed)
+- **SSL**: Automatic HTTPS
 
 ## Data Flow
 
@@ -139,53 +139,53 @@ Return Answer + Sources
 
 ### Authentication
 
--   Session-based auth (Auth.js v5)
--   HTTP-only cookies
--   CSRF protection
--   Secure password hashing (bcrypt)
+- Session-based auth (Auth.js v5)
+- HTTP-only cookies
+- CSRF protection
+- Secure password hashing (bcrypt)
 
 ### API Security
 
--   API key authentication for widget
--   Rate limiting (per API key)
--   Domain whitelisting
--   Input validation (Zod)
+- API key authentication for widget
+- Rate limiting (per API key)
+- Domain whitelisting
+- Input validation (Zod)
 
 ### Data Security
 
--   SSL/TLS encryption in transit
--   Database encryption at rest (Neon)
--   Sensitive data in environment variables
--   No credentials in code
+- SSL/TLS encryption in transit
+- Database encryption at rest (Neon)
+- Sensitive data in environment variables
+- No credentials in code
 
 ## Performance Considerations
 
 ### Caching Strategy
 
--   React Query cache (5 minutes TTL)
--   Browser localStorage (session data)
--   CDN caching (static assets)
+- React Query cache (5 minutes TTL)
+- Browser localStorage (session data)
+- CDN caching (static assets)
 
 ### Optimization
 
--   Image optimization (Next.js Image)
--   Code splitting (dynamic imports)
--   Widget lazy loading
--   Connection pooling (Prisma + Neon)
+- Image optimization (Next.js Image)
+- Code splitting (dynamic imports)
+- Widget lazy loading
+- Connection pooling (Prisma + Neon)
 
 ### Scalability
 
--   Serverless functions (auto-scaling)
--   Database auto-scaling (Neon)
--   Edge CDN distribution
--   Async processing (document ingestion)
+- Serverless functions (auto-scaling)
+- Database auto-scaling (Neon)
+- Edge CDN distribution
+- Async processing (document ingestion)
 
 ## Monitoring & Logging
 
--   **Analytics**: Vercel Analytics
--   **Error Tracking**: Console logging (Sentry optional)
--   **Performance**: Web Vitals
--   **Database**: Neon dashboard
+- **Analytics**: Vercel Analytics
+- **Error Tracking**: Console logging (Sentry optional)
+- **Performance**: Web Vitals
+- **Database**: Neon dashboard
 
 ## Development Workflow
 
@@ -211,21 +211,21 @@ Production Deploy
 
 ## Browser Support
 
--   Chrome/Edge: Latest 2 versions
--   Firefox: Latest 2 versions
--   Safari: Latest 2 versions
--   Mobile browsers: iOS Safari 14+, Chrome Android 90+
+- Chrome/Edge: Latest 2 versions
+- Firefox: Latest 2 versions
+- Safari: Latest 2 versions
+- Mobile browsers: iOS Safari 14+, Chrome Android 90+
 
 ## System Requirements
 
 ### Development
 
--   Node.js 18+
--   8GB RAM minimum
--   PostgreSQL 14+ (or Neon account)
+- Node.js 18+
+- 8GB RAM minimum
+- PostgreSQL 14+ (or Neon account)
 
 ### Production
 
--   Managed by Vercel (serverless)
--   Database: Neon auto-scaling
--   No server management required
+- Managed by Vercel (serverless)
+- Database: Neon auto-scaling
+- No server management required

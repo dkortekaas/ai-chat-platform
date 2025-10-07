@@ -2,12 +2,12 @@
 
 ## Overzicht
 
-Deze guide beschrijft de complete deployment van het AI Chatbot Platform naar productie met:
+Deze guide beschrijft de complete deployment van het Cited naar productie met:
 
--   **Hosting**: Vercel (Next.js applicatie)
--   **Database**: Neon PostgreSQL (Serverless)
--   **Storage**: Vercel Blob Storage
--   **AI**: OpenAI API
+- **Hosting**: Vercel (Next.js applicatie)
+- **Database**: Neon PostgreSQL (Serverless)
+- **Storage**: Vercel Blob Storage
+- **AI**: OpenAI API
 
 ---
 
